@@ -52,13 +52,13 @@ blog_html="$here/blog.html"
          margin: auto;
      }
 
-     @media only all and (max-width: 1899px) {
+     @media only all and (pointer: coarse), (pointer: none) {
          body {
-             font-size: 5.3vw;
+             font-size: 5.5vmin;
          }
      }
 
-     @media only all and (min-width: 1900px) {
+     @media only all and (pointer: fine) {
          body {
              font-size: 20px;
              min-width: 500px;
@@ -66,7 +66,7 @@ blog_html="$here/blog.html"
          }
      }
 
-     @media only all and (min-width: 2000px) {
+     @media only all and (pointer: fine) and (min-width: 2000px) {
          body {
              font-size: 40px;
          }
