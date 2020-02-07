@@ -65,12 +65,6 @@ blog_html="$here/blog.html"
              max-width: 50em;
          }
      }
-
-     @media only all and (pointer: fine) and (min-width: 2000px) {
-         body {
-             font-size: 40px;
-         }
-     }
     </style>
 
     <body>
