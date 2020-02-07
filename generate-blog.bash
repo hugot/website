@@ -60,7 +60,7 @@ blog_html="$here/blog.html"
 
      @media only all and (pointer: fine) {
          body {
-             font-size: 20px;
+             font-size: calc(16px + 0.6vmin);
              min-width: 500px;
              max-width: 50em;
          }
