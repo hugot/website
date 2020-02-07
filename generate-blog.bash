@@ -54,7 +54,7 @@ blog_html="$here/blog.html"
 
      @media only all and (max-width: 1899px) {
          body {
-             font-size: 6vw;
+             font-size: 5.3vw;
          }
      }
 
