@@ -91,10 +91,11 @@ blog_html="$here/blog.html"
         # Escape the post html file name to safely use it in the generated html.
         href="$(escape-html <<<"$post_html")" || exit $?
 
-        printf '<div><a href="%s"><h2>%s</h2></a><p>%s</p></div><hr>\n' \
+        printf '<div><a href="%s"><h2>%s</h2></a><p>%s ... <a href="%s">Continue reading</a></p></div><hr>\n' \
                "$href" \
                "$title" \
-               "$excerpt"
+               "$excerpt" \
+               "$href"
     done < "$posts_file"
 
     echo '    </body>
