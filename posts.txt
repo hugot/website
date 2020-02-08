@@ -1,1 +1,2 @@
+posts/simple-static-blog/index.html
 posts/introduction/index.html

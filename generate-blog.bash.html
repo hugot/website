@@ -1,0 +1,269 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.56 in css mode. -->
+<html>
+  <head>
+    <title>generate-blog.bash</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #f6f3e8;
+        background-color: #242424;
+      }
+      .builtin {
+        /* font-lock-builtin-face */
+        color: #e5786d;
+      }
+      .comment {
+        /* font-lock-comment-face */
+        color: #99968b;
+      }
+      .comment-delimiter {
+        /* font-lock-comment-delimiter-face */
+        color: #99968b;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #cae682;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #8ac6f2;
+        font-weight: bold;
+      }
+      .negation-char {
+      }
+      .sh-heredoc {
+        /* sh-heredoc */
+        color: #ffff00;
+        font-weight: bold;
+      }
+      .sh-quoted-exec {
+        /* sh-quoted-exec */
+        color: #fa8072;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #95e454;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #cae682;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+<span class="comment-delimiter">#</span><span class="comment">!/bin/</span><span class="keyword">bash</span><span class="comment">
+</span><span class="comment-delimiter">##</span><span class="comment">
+</span><span class="comment-delimiter"># </span><span class="comment">Generate html page with blog article excerpts from ./posts.txt.  Post file names should
+</span><span class="comment-delimiter"># </span><span class="comment">be added to ./posts.txt in the exact order that they are supposed to appear on the blog
+</span><span class="comment-delimiter"># </span><span class="comment">page.
+</span>
+<span class="comment-delimiter"># </span><span class="comment">Check if required executables can be found
+</span><span class="keyword">if ! </span><span class="builtin">type</span> readlink dirname html2text mv cat cksum base64; <span class="keyword">then</span>
+    <span class="builtin">echo</span> <span class="string">'One or more required executables are not present. Generation cancelled'</span> &gt;&amp;2
+    <span class="keyword">exit</span> 1
+<span class="keyword">fi</span>
+
+<span class="comment-delimiter"># </span><span class="comment">Determine script directory (requires GNU readlink)
+</span><span class="variable-name">here</span>=<span class="string">"$(</span><span class="sh-quoted-exec">dirname</span><span class="string"> "$(</span><span class="sh-quoted-exec">readlink</span><span class="string"> -f "${BASH_SOURCE[0]}")")"</span>
+
+<span class="builtin">printf</span> <span class="string">'Changing directory: '</span>
+<span class="builtin">pushd</span> <span class="string">"$here"</span> || <span class="keyword">exit</span>  $<span class="variable-name">?</span>
+
+<span class="variable-name">posts_file</span>=<span class="string">"$here/posts.txt"</span>
+
+<span class="keyword">if</span> <span class="negation-char">!</span> [[ -f <span class="string">"$posts_file"</span> ]]; <span class="keyword">then</span>
+    <span class="builtin">printf</span> <span class="string">'Posts file "%s" not found. Generation cancelled.\n'</span> <span class="string">"$posts_file"</span> &gt;&amp;2
+    <span class="keyword">exit</span> 1
+<span class="keyword">fi</span>
+
+<span class="function-name">escape-html</span>() {
+    sed <span class="string">'s/&amp;/\&amp;amp;/g; s/&lt;/\&amp;lt;/g; s/&gt;/\&amp;gt;/g; s/"/\&amp;quot;/g; s/'"'"'/\&amp;#39;/g'</span>
+}
+
+<span class="function-name">html-to-text</span>() {
+    html2text -nobs -style compact <span class="string">"$@"</span>
+}
+
+<span class="function-name">print-blog-html-top</span>() {
+    <span class="builtin">echo</span> <span class="string">'&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;Blog&lt;/title&gt;
+        &lt;meta charset="UTF-8"&gt;
+    &lt;/head&gt;
+
+    &lt;style type="text/css"&gt;
+     html {
+         font-family: Helvetica, Arial, sans-serif;
+         color: #5b4636;
+         background-color: #f4ecd8;
+     }
+
+     body {
+         padding: 1em;
+         margin: auto;
+     }
+
+     @media only all and (pointer: coarse), (pointer: none) {
+         body {
+             font-size: 5.5vmin;
+         }
+     }
+
+     @media only all and (pointer: fine) {
+         body {
+             font-size: calc(16px + 0.6vmin);
+             min-width: 500px;
+             max-width: 50em;
+         }
+     }
+    &lt;/style&gt;
+
+    &lt;body&gt;
+        &lt;div style="display: flex; flex-direction: horizontal;"&gt;
+            &lt;a href="index.html"&gt;Home&lt;/a&gt;
+            &lt;span style="margin-left: 1em; margin-right: 1em;"&gt;|&lt;/span&gt;
+            &lt;a href="feed.xml"&gt;RSS Feed&lt;/a&gt;
+        &lt;/div&gt;
+        &lt;h1&gt;Blog&lt;/h1&gt;
+'</span>
+}
+
+<span class="function-name">print-blog-html-bottom</span>() {
+    <span class="builtin">echo</span> <span class="string">'    &lt;/body&gt;
+    &lt;/html&gt;'</span>
+}
+
+<span class="comment-delimiter"># </span><span class="comment">Note: pubDate and lastBuildDate are both set to the current time.
+</span><span class="function-name">print-blog-rss-top</span>() {
+    cat &lt;&lt;EOF<span class="sh-heredoc">
+&lt;?xml version="1.0"?&gt;
+&lt;rss version="2.0"&gt;
+   &lt;channel&gt;
+      &lt;title&gt;Hugot Blog&lt;/title&gt;
+      &lt;link&gt;https://hugot.nl/blog.html&lt;/link&gt;
+      &lt;description&gt;Hugo's personal blog&lt;/description&gt;
+      &lt;language&gt;en-us&lt;/language&gt;
+      &lt;pubDate&gt;$(</span><span class="sh-quoted-exec">date</span><span class="sh-heredoc">)&lt;/pubDate&gt;
+      &lt;lastBuildDate&gt;$(</span><span class="sh-quoted-exec">date</span><span class="sh-heredoc">)&lt;/lastBuildDate&gt;
+      &lt;docs&gt;http://blogs.law.harvard.edu/tech/rss&lt;/docs&gt;
+      &lt;generator&gt;Hugo's Custom Bash Script&lt;/generator&gt;
+      &lt;managingEditor&gt;social@hugot.nl&lt;/managingEditor&gt;
+      &lt;webMaster&gt;infra@hugot.nl&lt;/webMaster&gt;
+EOF
+</span>}
+
+<span class="function-name">print-blog-rss-bottom</span>() {
+    <span class="builtin">echo</span> <span class="string">'&lt;/channel&gt;
+&lt;/rss&gt;'</span>
+}
+
+<span class="function-name">el</span>() {
+    <span class="variable-name">format_string</span>=<span class="string">"$1"</span>
+    <span class="builtin">shift</span>
+
+    <span class="builtin">printf</span> <span class="string">"&lt;$format_string&gt;"</span> <span class="string">"$@"</span>
+}
+
+<span class="function-name">el-close</span>() {
+    <span class="builtin">echo</span> <span class="string">"&lt;/$1&gt;"</span>
+}
+
+<span class="function-name">el-enclose</span>() {
+    <span class="variable-name">element_name</span>=<span class="string">"$1"</span>
+    <span class="builtin">shift</span>
+
+    <span class="builtin">printf</span> <span class="string">'%s'</span> <span class="string">"&lt;$element_name&gt;"</span>
+    <span class="builtin">printf</span> <span class="string">'%s'</span> <span class="string">"$@"</span>
+    <span class="builtin">printf</span> <span class="string">'%s'</span> <span class="string">"&lt;/$element_name&gt;"</span>
+}
+
+<span class="variable-name">site_url</span>=<span class="string">"https://hugot.nl"</span>
+
+<span class="variable-name">blog_html</span>=<span class="string">"$here/blog.html"</span>
+<span class="variable-name">new_html</span>=<span class="string">"$blog_html.new"</span>
+
+<span class="variable-name">blog_rss</span>=<span class="string">"$here/feed.xml"</span>
+<span class="variable-name">new_rss</span>=<span class="string">"$blog_rss.new"</span>
+
+print-blog-html-top &gt; <span class="string">"$new_html"</span>
+print-blog-rss-top &gt; <span class="string">"$new_rss"</span>
+
+<span class="keyword">while </span><span class="builtin">read</span> -r post_html; <span class="keyword">do</span>
+    <span class="comment-delimiter"># </span><span class="comment">Convert the post's html to text to make it easier to use the blog's text
+</span>    <span class="variable-name">text</span>=<span class="string">"$(</span><span class="sh-quoted-exec">html-to-text</span><span class="string"> "$post_html" | escape-html)"</span> || <span class="keyword">exit</span> $<span class="variable-name">?</span>
+
+    <span class="comment-delimiter"># </span><span class="comment">The title should be on the 2nd line of text, right after the link to the
+</span>    <span class="comment-delimiter"># </span><span class="comment">homepage. This is a bit inflexible but it will do for now.
+</span>    <span class="variable-name">title</span>=<span class="string">"$(</span><span class="sh-quoted-exec">tail</span><span class="string"> -n +2 &lt;&lt;&lt;"$text" | head -n 1 | tr -d '*')"</span> || <span class="keyword">exit</span> $<span class="variable-name">?</span>
+
+    <span class="comment-delimiter"># </span><span class="comment">Use the first 5 lines after the title as post excerpt.
+</span>    <span class="variable-name">excerpt</span>=<span class="string">"$(</span><span class="sh-quoted-exec">tail</span><span class="string"> -n +3 &lt;&lt;&lt;"$text" | head -n 5)"</span> || <span class="keyword">exit</span> $<span class="variable-name">?</span>
+ 
+     <span class="comment-delimiter"># </span><span class="comment">Escape the post html file name to safely use it in the generated html.
+</span>     <span class="variable-name">href</span>=<span class="string">"$(</span><span class="sh-quoted-exec">escape-html</span><span class="string"> &lt;&lt;&lt;"$post_html")"</span> || <span class="keyword">exit</span> $<span class="variable-name">?</span>
+ 
+     <span class="variable-name">post_dir</span>=<span class="string">"$(</span><span class="sh-quoted-exec">dirname</span><span class="string"> "$post_html")"</span> || <span class="keyword">exit</span> $<span class="variable-name">?</span>
+     <span class="variable-name">pubdate_file</span>=<span class="string">"$post_dir/publish_date.txt"</span>
+ 
+     <span class="comment-delimiter"># </span><span class="comment">Determine a publishing date for the post
+</span>     <span class="keyword">if</span> [[ -f <span class="string">"$pubdate_file"</span> ]]; <span class="keyword">then</span>
+         <span class="builtin">read</span> -r pubdate &lt; <span class="string">"$pubdate_file"</span>
+     <span class="keyword">else</span>
+         <span class="variable-name">pubdate</span>=<span class="string">"$(</span><span class="sh-quoted-exec">date</span><span class="string">)"</span>
+         <span class="builtin">echo</span> <span class="string">"$pubdate"</span> &gt; <span class="string">"$pubdate_file"</span>
+     <span class="keyword">fi</span>
+ 
+     {
+         el div
+ 
+         el <span class="string">'a href="%s"'</span> <span class="string">"$href"</span>
+         <span class="builtin">printf</span> <span class="string">'&lt;h2 style="margin-bottom: 0.1em;"&gt;%s&lt;/h2&gt;'</span> <span class="string">"$title"</span>
+         el-close a
+ 
+         <span class="builtin">printf</span> <span class="string">'&lt;i style="font-size: 0.8em;"&gt;%s&lt;/i&gt;'</span> <span class="string">"$pubdate"</span>
+ 
+         el <span class="string">'p style="margin-top: 0.5em;"'</span>
+         <span class="builtin">printf</span> <span class="string">'%s ... &lt;a href="%s"&gt;Continue reading&lt;/a&gt;'</span> <span class="string">"$excerpt"</span> <span class="string">"$href"</span>
+         el-close p
+ 
+         el-close div
+ 
+         el hr
+     } &gt;&gt; <span class="string">"$new_html"</span>
+ 
+     {
+         el item
+         el-enclose title <span class="string">"$title"</span>
+         el-enclose link <span class="string">"$site_url/$href"</span>
+         el-enclose description <span class="string">"$excerpt"</span>
+         el-enclose pubDate <span class="string">"$pubdate"</span>
+ 
+         <span class="builtin">echo</span> <span class="string">"&lt;guid isPermaLink=\"false\"&gt;$title$(</span><span class="sh-quoted-exec">base64</span><span class="string"> &lt;(cksum &lt;&lt;&lt;"$text"))&lt;/guid&gt;"</span>
+ 
+         el-close item
+     } &gt;&gt; <span class="string">"$new_rss"</span>
+<span class="keyword"> done</span> &lt; <span class="string">"$posts_file"</span>
+ 
+ print-blog-html-bottom &gt;&gt; <span class="string">"$new_html"</span>
+ print-blog-rss-bottom &gt;&gt; <span class="string">"$new_rss"</span>
+ 
+ mv -v <span class="string">"$new_html"</span> <span class="string">"$blog_html"</span> || <span class="keyword">exit</span> $<span class="variable-name">?</span>
+ mv -v <span class="string">"$new_rss"</span> <span class="string">"$blog_rss"</span> || <span class="keyword">exit</span> $<span class="variable-name">?</span>
+ 
+<span class="builtin"> echo</span> <span class="string">'SUCCESS!'</span>
+</pre>
+  </body>
+</html>
