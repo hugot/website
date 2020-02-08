@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<rss version="2.0">
+   <channel>
+      <title>Hugot Blog</title>
+      <link>https://hugot.nl/blog.html</link>
+      <description>Hugo's personal blog</description>
+      <language>en-us</language>
+      <pubDate>Sat 08 Feb 2020 09:58:35 AM CET</pubDate>
+      <lastBuildDate>Sat 08 Feb 2020 09:58:35 AM CET</lastBuildDate>
+      <docs>http://blogs.law.harvard.edu/tech/rss</docs>
+      <generator>Hugo's Custom Bash Script</generator>
+      <managingEditor>social@hugot.nl</managingEditor>
+      <webMaster>infra@hugot.nl</webMaster>
+<title>  Introduction  </title>
+<description> Hello, welcome to my blog! My name is Hugo. I am a 22 year old Software
+Engineering student from the Netherlands. Software development is a huge part
+of my life, I write a lot of (weird) programs to scratch my own itch and most
+software I create is open_source by default. I also run a one-man company that
+provides some IT services on the side. </description>
+<pubDate> Sat 08 Feb 2020 09:30:06 AM CET </pubDate>
+<guid> ./posts/introduction/index.html#MjM3MzUyOTAwNSA5MDYK </guid>
+</channel>
+</rss>

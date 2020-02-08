@@ -5,7 +5,7 @@
 # page.
 
 # Check if required executables can be found
-if ! type readlink dirname html2text mv; then
+if ! type readlink dirname html2text mv cat cksum base64; then
     echo 'One or more required executables are not present. Generation cancelled' >&2
     exit 1
 fi
@@ -31,9 +31,7 @@ html-to-text() {
     html2text -nobs -style compact "$@"
 }
 
-blog_html="$here/blog.html"
-
-{
+print-blog-html-top() {
     echo '<html>
     <head>
         <title>Blog</title>
@@ -71,32 +69,121 @@ blog_html="$here/blog.html"
         <a href="index.html">Home</a>
         <h1>Blog</h1>
 '
-    while read -r post_html; do
-        # Convert the post's html to text to make it easier to use the blog's text
-        text="$(html-to-text "$post_html" | escape-html)" || exit $?
+}
 
-        # The title should be on the 2nd line of text, right after the link to the
-        # homepage. This is a bit inflexible but it will do for now.
-        title="$(tail -n +2 <<<"$text" | head -n 1 | tr -d '*')" || exit $?
-
-        # Use the first 5 lines after the title as post excerpt.
-        excerpt="$(tail -n +3 <<<"$text" | head -n 5)" || exit $?
-
-        # Escape the post html file name to safely use it in the generated html.
-        href="$(escape-html <<<"$post_html")" || exit $?
-
-        printf '<div><a href="%s"><h2>%s</h2></a><p>%s ... <a href="%s">Continue reading</a></p></div><hr>\n' \
-               "$href" \
-               "$title" \
-               "$excerpt" \
-               "$href"
-    done < "$posts_file"
-
+print-blog-html-bottom() {
     echo '    </body>
-</html>'
+    </html>'
+}
 
-} > "$blog_html.new"
+# Note: pubDate and lastBuildDate are both set to the current time.
+print-blog-rss-top() {
+    cat <<EOF
+<?xml version="1.0"?>
+<rss version="2.0">
+   <channel>
+      <title>Hugot Blog</title>
+      <link>https://hugot.nl/blog.html</link>
+      <description>Hugo's personal blog</description>
+      <language>en-us</language>
+      <pubDate>$(date)</pubDate>
+      <lastBuildDate>$(date)</lastBuildDate>
+      <docs>http://blogs.law.harvard.edu/tech/rss</docs>
+      <generator>Hugo's Custom Bash Script</generator>
+      <managingEditor>social@hugot.nl</managingEditor>
+      <webMaster>infra@hugot.nl</webMaster>
+EOF
+}
 
-mv -v "$blog_html.new" "$blog_html" || exit $?
+print-blog-rss-bottom() {
+    echo '</channel>
+</rss>'
+}
+
+el() {
+    format_string="$1"
+    shift
+
+    printf "<$format_string>" "$@"
+}
+
+el-close() {
+    echo "</$1>"
+}
+
+el-enclose() {
+    element_name="$1"
+    shift
+
+    echo "<$element_name>" "$@" "</$element_name>"
+}
+
+site_url="https://hugot.nl"
+
+blog_html="$here/blog.html"
+new_html="$blog_html.new"
+
+blog_rss="$here/feed.xml"
+new_rss="$blog_rss.new"
+
+print-blog-html-top > "$new_html"
+print-blog-rss-top > "$new_rss"
+
+while read -r post_html; do
+    # Convert the post's html to text to make it easier to use the blog's text
+    text="$(html-to-text "$post_html" | escape-html)" || exit $?
+
+    # The title should be on the 2nd line of text, right after the link to the
+    # homepage. This is a bit inflexible but it will do for now.
+    title="$(tail -n +2 <<<"$text" | head -n 1 | tr -d '*')" || exit $?
+
+    # Use the first 5 lines after the title as post excerpt.
+    excerpt="$(tail -n +3 <<<"$text" | head -n 5)" || exit $?
+
+    # Escape the post html file name to safely use it in the generated html.
+    href="$(escape-html <<<"$post_html")" || exit $?
+
+    post_dir="$(dirname "$post_html")" || exit $?
+    pubdate_file="$post_dir/publish_date.txt"
+
+    # Determine a publishing date for the post
+    if [[ -f "$pubdate_file" ]]; then
+        read -r pubdate < "$pubdate_file"
+    else
+        pubdate="$(date)"
+        echo "$pubdate" > "$pubdate_file"
+    fi
+
+    {
+        el div
+
+        el 'a href="%s"' "$href"
+        printf '<h2 style="margin-bottom: 0;">%s</h2>' "$title"
+        el-close a
+
+        printf '<i style="font-size: 0.8em;">%s</i>' "$pubdate"
+
+        el 'p style="margin-top: 0.5em;"'
+        printf '%s ... <a href="%s">Continue reading</a>' "$excerpt" "$href"
+        el-close p
+
+        el-close div
+
+        el hr
+    } >> "$new_html"
+
+    {
+        el-enclose title "$title"
+        el-enclose description "$excerpt"
+        el-enclose pubDate "$pubdate"
+        el-enclose guid "${href}#$(base64 <(cksum <<<"$text"))"
+    } >> "$new_rss"
+done < "$posts_file"
+
+print-blog-html-bottom >> "$new_html"
+print-blog-rss-bottom >> "$new_rss"
+
+mv -v "$new_html" "$blog_html" || exit $?
+mv -v "$new_rss" "$blog_rss" || exit $?
 
 echo 'SUCCESS!'
