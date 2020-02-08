@@ -184,7 +184,8 @@ while read -r post_html; do
         el-enclose link "$site_url/$href"
         el-enclose description "$excerpt"
         el-enclose pubDate "$pubdate"
-        el-enclose guid "${href}#$(base64 <(cksum <<<"$text"))"
+
+        echo "<guid isPermaLink=\"false\">$title$(base64 <(cksum <<<"$text"))</guid>"
 
         el-close item
     } >> "$new_rss"
