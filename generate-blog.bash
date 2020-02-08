@@ -66,7 +66,11 @@ print-blog-html-top() {
     </style>
 
     <body>
-        <a href="index.html">Home</a>
+        <div style="display: flex; flex-direction: horizontal;">
+            <a href="index.html">Home</a>
+            <span style="margin-left: 1em; margin-right: 1em;">|</span>
+            <a href="feed.xml">RSS Feed</a>
+        </div>
         <h1>Blog</h1>
 '
 }
