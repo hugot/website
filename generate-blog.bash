@@ -181,6 +181,7 @@ while read -r post_html; do
     {
         el item
         el-enclose title "$title"
+        el-enclose link "$site_url/$href"
         el-enclose description "$excerpt"
         el-enclose pubDate "$pubdate"
         el-enclose guid "${href}#$(base64 <(cksum <<<"$text"))"

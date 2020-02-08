@@ -1,1 +1,1 @@
-./posts/introduction/index.html
+posts/introduction/index.html
