@@ -160,7 +160,7 @@ while read -r post_html; do
         el div
 
         el 'a href="%s"' "$href"
-        printf '<h2 style="margin-bottom: 0;">%s</h2>' "$title"
+        printf '<h2 style="margin-bottom: 0.1em;">%s</h2>' "$title"
         el-close a
 
         printf '<i style="font-size: 0.8em;">%s</i>' "$pubdate"
