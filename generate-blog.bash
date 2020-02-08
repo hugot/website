@@ -115,7 +115,9 @@ el-enclose() {
     element_name="$1"
     shift
 
-    echo "<$element_name>" "$@" "</$element_name>"
+    printf '%s' "<$element_name>"
+    printf '%s' "$@"
+    printf '%s' "</$element_name>"
 }
 
 site_url="https://hugot.nl"
@@ -173,10 +175,13 @@ while read -r post_html; do
     } >> "$new_html"
 
     {
+        el item
         el-enclose title "$title"
         el-enclose description "$excerpt"
         el-enclose pubDate "$pubdate"
         el-enclose guid "${href}#$(base64 <(cksum <<<"$text"))"
+
+        el-close item
     } >> "$new_rss"
 done < "$posts_file"
 
