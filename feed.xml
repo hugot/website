@@ -5,8 +5,8 @@
       <link>https://hugot.nl/blog.html</link>
       <description>Hugo's personal blog</description>
       <language>en-us</language>
-      <pubDate>Sat 08 Feb 2020 07:30:42 PM CET</pubDate>
-      <lastBuildDate>Sat 08 Feb 2020 07:30:42 PM CET</lastBuildDate>
+      <pubDate>Sat 08 Feb 2020 07:32:46 PM CET</pubDate>
+      <lastBuildDate>Sat 08 Feb 2020 07:32:46 PM CET</lastBuildDate>
       <docs>http://blogs.law.harvard.edu/tech/rss</docs>
       <generator>Hugo's Custom Bash Script</generator>
       <managingEditor>social@hugot.nl</managingEditor>
@@ -14,8 +14,8 @@
 <item><title> Creating a Simple Static Blog </title><link>https://hugot.nl/posts/simple-static-blog/index.html</link><description>I love personal websites. It&#39;s amazing that people can share content with the
 entire world just by writing some text and throwing it behind a web server. I
 wanted to know what that is like, so I set out to create a personal website of
-my own. As you can see I succeeded in the end. But getting here wasn&#39;t as
-straight forward as I initially thought it would be. I thought that, being a</description><pubDate>Sat 08 Feb 2020 12:14:16 PM CET</pubDate><guid isPermaLink="false"> Creating a Simple Static Blog MjgzNTAwMjQ4IDYxMjcK</guid>
+my own. As you can see I succeeded in doing so, but getting here wasn&#39;t as
+straight forward as I initially thought it would be. I thought that, being a</description><pubDate>Sat 08 Feb 2020 12:14:16 PM CET</pubDate><guid isPermaLink="false"> Creating a Simple Static Blog Mzg5NDU4OTEwNiA2MTI4Cg==</guid>
 </item>
 <item><title> Introduction </title><link>https://hugot.nl/posts/introduction/index.html</link><description>Hello, welcome to my blog! My name is Hugo. I am a 22 year old Software
 Engineering student from the Netherlands. Software development is a huge part
