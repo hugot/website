@@ -39,6 +39,24 @@ print-blog-html-top() {
     </head>
 
     <style type="text/css">
+     a:visited {
+         color: #c2e;
+     }
+
+     a {
+         color: #0095dd;
+     }
+
+     h2 a {
+         color: #5b4636;
+         text-decoration: none;
+     }
+
+     h2 a:visited {
+         color: #5b4636;
+         text-decoration: none;
+     }
+
      html {
          font-family: Helvetica, Arial, sans-serif;
          color: #5b4636;
@@ -163,9 +181,7 @@ while read -r post_html; do
     {
         el div
 
-        el 'a href="%s"' "$href"
-        printf '<h2 style="margin-bottom: 0.1em;">%s</h2>' "$title"
-        el-close a
+        printf '<h2 style="margin-bottom: 0.1em;"><a href="%s">%s</a></h2>' "$href" "$title"
 
         printf '<i style="font-size: 0.8em;">%s</i>' "$pubdate"
 
