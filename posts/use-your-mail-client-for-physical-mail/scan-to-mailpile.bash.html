@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.56 in css mode. -->
+<html>
+  <head>
+    <title>scan-to-mailpile.bash</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #f6f3e8;
+        background-color: #242424;
+      }
+      .builtin {
+        /* font-lock-builtin-face */
+        color: #e5786d;
+      }
+      .comment {
+        /* font-lock-comment-face */
+        color: #99968b;
+      }
+      .comment-delimiter {
+        /* font-lock-comment-delimiter-face */
+        color: #99968b;
+      }
+      .flyspell-duplicate {
+        /* flyspell-duplicate */
+        text-decoration: underline;
+      }
+      .flyspell-incorrect {
+        /* flyspell-incorrect */
+        text-decoration: underline;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #8ac6f2;
+        font-weight: bold;
+      }
+      .negation-char {
+      }
+      .sh-escaped-newline {
+        /* sh-escaped-newline */
+        color: #95e454;
+      }
+      .sh-quoted-exec {
+        /* sh-quoted-exec */
+        color: #fa8072;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #95e454;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #cae682;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+<span class="comment-delimiter"> #</span><span class="comment">!/bin/</span><span class="keyword">bash</span><span class="comment">
+</span> 
+<span class="keyword"> if</span> <span class="negation-char">!</span> [[ $<span class="variable-name">#</span> -ge 1 ]]; <span class="keyword">then</span>
+     <span class="builtin">echo</span> <span class="string">'Usage: scan-to-mailpile ...FILES'</span> &gt;&amp;2
+ 
+     <span class="keyword">exit</span>
+<span class="keyword"> fi</span>
+ 
+<span class="keyword"> if</span> <span class="negation-char">!</span> <span class="variable-name">type_output</span>=<span class="string">"$(</span><span class="sh-quoted-exec">type</span><span class="string"> readlink mktemp pdftotext tesseract mail mimetype basename cat 2&gt;&amp;1)"</span>; <span class="keyword">then</span>
+     <span class="builtin">printf</span> <span class="string">'scan-to-mailpile: Some required commands are missing, lookup results:\n%s\n'</span> <span class="sh-escaped-newline">\</span>
+            <span class="string">"$type_output"</span> &gt;&amp;2
+     <span class="keyword">exit</span> 1
+<span class="keyword"> fi</span>
+ 
+<span class="variable-name"> tmpdir</span>=$(<span class="sh-quoted-exec">mktemp</span> -d) || <span class="keyword">exit</span> $<span class="variable-name">?</span>
+ 
+<span class="builtin"> printf</span> -v trap <span class="string">'rm -vr %q'</span> <span class="string">"$tmpdir"</span>
+<span class="keyword"> trap</span> <span class="string">"$trap"</span> EXIT
+ 
+<span class="builtin"> printf</span> <span class="string">'Changing directory: '</span>
+<span class="builtin"> pushd</span> <span class="string">"$tmpdir"</span> || <span class="keyword">exit</span> $<span class="variable-name">?</span>
+ 
+<span class="builtin"> declare</span> -a <span class="variable-name">file_args</span>=()
+ 
+ {
+     <span class="keyword">for</span> file<span class="keyword"> in</span> <span class="string">"$@"</span>; <span class="keyword">do</span>
+         <span class="variable-name">file</span>=<span class="string">"$(</span><span class="sh-quoted-exec">readlink</span><span class="string"> -f "$file")"</span> || <span class="keyword">exit</span> $<span class="variable-name">?</span>
+ 
+         <span class="comment-delimiter"># </span><span class="comment">Note: </span><span class="comment"><span class="flyspell-duplicate">pdftotext</span></span><span class="comment"> will not work for scanned documents, so those should just be
+</span>         <span class="comment-delimiter"># </span><span class="comment">saved as image files before feeding them to this script.
+</span>         <span class="comment-delimiter">##</span><span class="comment">
+</span>         <span class="comment-delimiter"># </span><span class="comment">It will however work fine for other types of </span><span class="comment"><span class="flyspell-incorrect">PDFs</span></span><span class="comment">.
+</span>         <span class="keyword">if</span> [[ <span class="string">"$file"</span> == *.pdf ]]; <span class="keyword">then</span>
+             pdftotext <span class="string">"$file"</span> /dev/fd/1 || <span class="keyword">exit</span> $<span class="variable-name">?</span>
+         <span class="keyword">else</span>
+             tesseract <span class="string">"$file"</span> stdout  || <span class="keyword">exit</span> $<span class="variable-name">?</span>
+         <span class="keyword">fi</span>
+ 
+         <span class="variable-name">mime</span>=<span class="string">"$(</span><span class="sh-quoted-exec">mimetype</span><span class="string"> -b "$file")"</span> || <span class="keyword">exit</span> $<span class="variable-name">?</span>
+ 
+         <span class="variable-name">attachment_args</span>+=(--content-type=<span class="string">"$mime"</span> --attach=<span class="string">"$file"</span>)
+     <span class="keyword">done</span>
+ } &gt; ./outfile.txt
+ 
+ cat ./outfile.txt
+ 
+<span class="variable-name"> file1</span>=<span class="string">"$(</span><span class="sh-quoted-exec">basename</span><span class="string"> "$1")"</span>
+ 
+<span class="builtin"> read</span> -i <span class="string">"${file1%.*}"</span> -rep <span class="string">'What should the subject of the email be? '</span> subject
+ 
+ mail --subject=<span class="string">"$subject"</span> <span class="sh-escaped-newline">\</span>
+      <span class="string">"${attachment_args[@]}"</span> <span class="sh-escaped-newline">\</span>
+      --content-type=<span class="string">"text/plain"</span> <span class="sh-escaped-newline">\</span>
+      --content-filename=<span class="string">"content.</span><span class="string"><span class="flyspell-duplicate">txt</span></span><span class="string">"</span> <span class="sh-escaped-newline">\</span>
+     user@example.com &lt; ./outfile.txt
+
+<span class="builtin">popd</span>
+</pre>
+  </body>
+</html>
