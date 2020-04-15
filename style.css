@@ -1,0 +1,49 @@
+a:visited {
+    color: #c2e;
+}
+
+a {
+    color: #0095dd;
+}
+
+html {
+    font-family: Helvetica, Arial, sans-serif;
+    color: #5b4636;
+    background-color: #f4ecd8;
+}
+
+body {
+    padding: 1em;
+    margin: auto;
+}
+
+aside {
+    width: 30%;
+    min-width: 10em;
+    background-color: rgba(0,0,0, 0.1);
+    float: right;
+    padding: 1em;
+    margin: 1em;
+}
+
+pre {
+    white-space: pre-wrap;
+}
+
+@media only all and (pointer: coarse), (pointer: none) {
+    body {
+        font-size: 5.5vmin;
+    }
+
+    aside {
+        width: inherit;
+    }
+}
+
+@media only all and (pointer: fine) {
+    body {
+        font-size: calc(16px + 0.6vmin);
+        min-width: 500px;
+        max-width: 50em;
+    }
+}

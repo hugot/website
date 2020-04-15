@@ -35,18 +35,11 @@ print-blog-html-top() {
     echo '<html>
     <head>
         <title>Blog</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
         <meta charset="UTF-8">
     </head>
 
     <style type="text/css">
-     a:visited {
-         color: #c2e;
-     }
-
-     a {
-         color: #0095dd;
-     }
-
      h2 a {
          color: #5b4636;
          text-decoration: none;
@@ -55,31 +48,6 @@ print-blog-html-top() {
      h2 a:visited {
          color: #5b4636;
          text-decoration: none;
-     }
-
-     html {
-         font-family: Helvetica, Arial, sans-serif;
-         color: #5b4636;
-         background-color: #f4ecd8;
-     }
-
-     body {
-         padding: 1em;
-         margin: auto;
-     }
-
-     @media only all and (pointer: coarse), (pointer: none) {
-         body {
-             font-size: 5.5vmin;
-         }
-     }
-
-     @media only all and (pointer: fine) {
-         body {
-             font-size: calc(16px + 0.6vmin);
-             min-width: 500px;
-             max-width: 50em;
-         }
      }
     </style>
 
@@ -159,10 +127,10 @@ while read -r post_html; do
 
     # The title should be on the 2nd line of text, right after the link to the
     # homepage. This is a bit inflexible but it will do for now.
-    title="$(tail -n +2 <<<"$text" | head -n 1 | tr -d '*')" || exit $?
+    title="$(tail -n +3 <<<"$text" | head -n 1 | tr -d '*')" || exit $?
 
     # Use the first 5 lines after the title as post excerpt.
-    excerpt="$(tail -n +3 <<<"$text" | head -n 5)" || exit $?
+    excerpt="$(tail -n +4 <<<"$text" | head -n 5)" || exit $?
 
     # Escape the post html file name to safely use it in the generated html.
     href="$(escape-html <<<"$post_html")" || exit $?

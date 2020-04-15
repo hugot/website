@@ -1,48 +1,10 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
     <head>
         <title>Creating a Simple Static Blog</title>
+        <link rel="stylesheet" type="text/css" href="../../style.css">
         <meta charset="UTF-8">
     </head>
-
-    <style type="text/css">
-     a:visited {
-         color: #c2e;
-     }
-
-     a {
-         color: #0095dd;
-     }
-
-     html {
-         font-family: Helvetica, Arial, sans-serif;
-         color: #5b4636;
-         background-color: #f4ecd8;
-     }
-
-     body {
-         padding: 1em;
-         margin: auto;
-     }
-
-     @media only all and (pointer: coarse), (pointer: none) {
-         body {
-             font-size: 5.5vmin;
-         }
-     }
-
-     @media only all and (pointer: fine) {
-         body {
-             font-size: calc(16px + 0.6vmin);
-             min-width: 500px;
-             max-width: 50em;
-         }
-     }
-
-     pre {
-         white-space: pre-wrap;
-     }
-    </style>
 
     <body>
         <a href="../../blog.html">Home</a>
@@ -181,9 +143,10 @@
             stole the colors from firefox's reader mode btw). It's such a small amount
             that I don't mind copy-pasting it at the top of all new HTML pages that I add
             to my website. This might make it harder to change the styling later, but it
-            has the added benefit that each page is a standalone document. So for example  <code>wget PAGE_URL</code>
-            will download a HTML page that looks exactly the same locally as it does on
-            the web without having to download any extra assets.
+            has the added benefit that each page is a standalone document. So for
+            example <code>wget PAGE_URL</code>  will download a HTML page that looks
+            exactly the same locally as it does on the web without having to download any
+            extra assets.
         </p>
 
         <p>
