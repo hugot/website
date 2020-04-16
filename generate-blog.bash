@@ -67,6 +67,10 @@ print-blog-html-bottom() {
     </html>'
 }
 
+rfc-822-date-time() {
+    date "$@" +'%a, %d %b %Y %H:%M:%S %Z'
+}
+
 # Note: pubDate and lastBuildDate are both set to the current time.
 print-blog-rss-top() {
     cat <<EOF
@@ -77,12 +81,12 @@ print-blog-rss-top() {
       <link>https://hugot.nl/blog.html</link>
       <description>Hugo's personal blog</description>
       <language>en-us</language>
-      <pubDate>$(date)</pubDate>
-      <lastBuildDate>$(date)</lastBuildDate>
+      <pubDate>$(rfc-822-date-time)</pubDate>
+      <lastBuildDate>$(rfc-822-date-time)</lastBuildDate>
       <docs>http://blogs.law.harvard.edu/tech/rss</docs>
       <generator>Hugo's Custom Bash Script</generator>
-      <managingEditor>social@hugot.nl</managingEditor>
-      <webMaster>infra@hugot.nl</webMaster>
+      <managingEditor>social@hugot.nl (Hugot)</managingEditor>
+      <webMaster>infra@hugot.nl (Hugot Infra)</webMaster>
 EOF
 }
 
@@ -149,6 +153,9 @@ while read -r post_html; do
         pubdate="$(date)"
         echo "$pubdate" > "$pubdate_file"
     fi
+
+    # Convert publishing date to be conform RFC 822
+    pubdate="$(rfc-822-date-time --date="$pubdate")"
 
     {
         el div
