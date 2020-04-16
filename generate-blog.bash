@@ -139,7 +139,7 @@ while read -r post_html; do
 
     # Escape just the article element for use in the RSS feed article description.
     # This way the entire article can be read from an RSS reader.
-    article_html="$(pup article < "$post_html" | escape-html)"
+    article_html="$(pup article < "$post_html" | head -n -1 | tail -n +2 | escape-html)"
 
     # Escape the post html file name to safely use it in the generated html.
     href="$(escape-html <<<"$post_html")" || exit $?
