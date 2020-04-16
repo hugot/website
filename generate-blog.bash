@@ -135,10 +135,11 @@ while read -r post_html; do
     title="$(tail -n +3 <<<"$text" | head -n 1 | tr -d '*')" || exit $?
 
     # Use the first 5 lines after the title as post excerpt.
-    # excerpt="$(tail -n +4 <<<"$text" | head -n 5)" || exit $?
+    excerpt="$(tail -n +4 <<<"$text" | head -n 5)" || exit $?
 
-    # Include full post content
-    excerpt="$(pup article < "$post_html" | escape-html)"
+    # Escape just the article element for use in the RSS feed article description.
+    # This way the entire article can be read from an RSS reader.
+    article_html="$(pup article < "$post_html" | escape-html)"
 
     # Escape the post html file name to safely use it in the generated html.
     href="$(escape-html <<<"$post_html")" || exit $?
@@ -177,7 +178,7 @@ while read -r post_html; do
         el item
         el-enclose title "$title"
         el-enclose link "$site_url/$href"
-        el-enclose description "$excerpt"
+        el-enclose description "$article_html"
         el-enclose pubDate "$pubdate"
 
         echo "<guid isPermaLink=\"false\">$title$(base64 <(cksum <<<"$text"))</guid>"
