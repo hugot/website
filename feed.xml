@@ -5,29 +5,161 @@
       <link>https://hugot.nl/blog.html</link>
       <description>Hugo's personal blog</description>
       <language>en-us</language>
-      <pubDate>wo 15 apr 2020 15:32:13 CEST</pubDate>
-      <lastBuildDate>wo 15 apr 2020 15:32:13 CEST</lastBuildDate>
+      <pubDate>do 16 apr 2020  7:43:28 CEST</pubDate>
+      <lastBuildDate>do 16 apr 2020  7:43:28 CEST</lastBuildDate>
       <docs>http://blogs.law.harvard.edu/tech/rss</docs>
       <generator>Hugo's Custom Bash Script</generator>
       <managingEditor>social@hugot.nl</managingEditor>
       <webMaster>infra@hugot.nl</webMaster>
-<item><title> How To Use Your Email Client For Physical Mail </title><link>https://hugot.nl/posts/use-your-mail-client-for-physical-mail/index.html</link><description>Whether it&#39;s to re-read a conversation, find a plane ticket I ordered or check
-when a meeting was planned, I often find myself looking up old emails. It&#39;s
-usually easy to do so because email clients are designed for the task: Many of
-them support full-text search and some even complement that with neat tagging
-and categorization systems. To be honest I have become completely dependent on</description><pubDate>Mon 17 Feb 2020 11:55:42 AM CET</pubDate><guid isPermaLink="false"> How To Use Your Email Client For Physical Mail NDc2MDg1MjYxIDQxODUK</guid>
+<item><title> How To Use Your Email Client For Physical Mail </title><link>https://hugot.nl/posts/use-your-mail-client-for-physical-mail/index.html</link><description>&lt;article&gt;
+ &lt;h1&gt;
+  How To Use Your Email Client For Physical Mail
+ &lt;/h1&gt;
+ &lt;p&gt;
+  Whether it&amp;#39;s to re-read a conversation, find a plane ticket I ordered or
+                check when a meeting was planned, I often find myself looking up old
+                emails. It&amp;#39;s usually easy to do so because email clients are designed for
+                the task: Many of them support full-text search and some even complement
+                that with neat tagging and categorization systems. To be honest I have
+                become completely dependent on those features for my day to day
+                life. Having full-text search and some sort of categorization for email
+                can be a huge time saver. When it comes to physical mail however, I still
+                have to browse through stacks of paper to (hopefully) find what I&amp;#39;m
+                looking for. I figured that it&amp;#39;d be nice to use my fancy email client to
+                deal with physical mail as well, so I found a way to do just that. Turns
+                out it&amp;#39;s pretty simple!
+ &lt;/p&gt;
+ &lt;p&gt;
+  The main objective here is to transform our physical mail into an email
+                that can be received, indexed and read by our email client of choice. Now,
+                one way to do that would be to type the contents of our mail into an email
+                by hand, but
+  &lt;i&gt;
+   ain&amp;#39;t nobody got time for that!
+  &lt;/i&gt;
+  . The (more appealing)
+                alternative is to use a document scanner. I have a single purpose scanner
+                unit from Canon that I hook up to my laptop for just this purpose.
+ &lt;/p&gt;
+ &lt;p&gt;
+  It isn&amp;#39;t as simple as just emailing a scanned document to ourselves
+                though: email clients are smart, but they can&amp;#39;t understand a word of text
+                in our PDF or JPEG of a physical document. They need content to be in
+                plain text form in order to provide us with some of their best features
+                like full-text search. We&amp;#39;ll have to somehow transform our scanned
+                documents into plain text that we can include in our email. To do this, we
+                can use tesseract. Tesseract is an optical character recognition (OCR)
+                engine, meaning that it can recognize text in images and extract it for
+                us. Installing it should be easy on Debian derivative distros like
+                Ubuntu. My laptop is running Debian unstable so I just ran
+  &lt;code&gt;
+   apt
+                install tesseract
+  &lt;/code&gt;
+  and started using it. Using it is as easy as
+                upening up a terminal and typing
+  &lt;code&gt;
+   tesseract FILE.jpg
+                OUTPUT
+  &lt;/code&gt;
+  . That command will save all the text that tesseract is able
+                to recognize in the image FILE.jpg to a file called OUTPUT.txt.
+ &lt;/p&gt;
+ &lt;aside&gt;
+  &lt;i&gt;
+   Side note: I am Dutch, so most of my physical mail is in Dutch. To
+                    make tesseract better understand my mail I installed the
+                    tesseract-ocr-nld package using
+   &lt;code&gt;
+    apt install
+                    tesseract-ocr-nld
+   &lt;/code&gt;
+   . You can check what other language packs are
+                    available by using
+   &lt;code&gt;
+    apt search tesseract-ocr
+   &lt;/code&gt;
+   .
+  &lt;/i&gt;
+ &lt;/aside&gt;
+ &lt;p&gt;
+  All we have to do from there is copy-paste the contents of that file into
+                an email and send it to ourselves! Depending on the formatting of the
+                input document, the output may not always be pleasant to read. We can
+                account for this by including the original document as an attachment to
+                the email. That way we get the best of both worlds: we can use the search
+                functionality of our email client to find the document, and then read it
+                in its original form by opening the attachment.
+ &lt;/p&gt;
+ &lt;p&gt;
+  This is all easy enough, but I&amp;#39;m lazy. I didn&amp;#39;t feel like opening up my
+                email client and doing manual copy-pasting, so I decided to automate the
+                process a little further. I have postfix setup on my system to relay to my
+                mail server, so I can simply use the
+  &lt;code&gt;
+   mail
+  &lt;/code&gt;
+  command to send
+                emails without a GUI mail client. I combined that with tesseract in a
+                little bash script. The script iterates through all of its arguments and
+                interprets them as filenames of scanned documents. It calls tesseract to
+                extract text from them, concatenates the results, attaches the files to an
+                email and sends it to my personal email address. Now all I have to do is
+                run the script with filenames of some documents and my job is done. If
+                anyone is interested in an actual program that does the same thing and
+                doesn&amp;#39;t require you to setup postfix, let me know! I might consider
+                authoring one if it&amp;#39;s useful to more people than just myself. The script
+                I&amp;#39;m currently using can be found
+  &lt;a href=&quot;scan-to-mailpile.bash.html&quot;&gt;
+   here
+                (pretty)
+  &lt;/a&gt;
+  and
+  &lt;a href=&quot;scan-to-mailpile.bash&quot;&gt;
+   here (raw)
+  &lt;/a&gt;
+  , but I
+                don&amp;#39;t recommend using it if you don&amp;#39;t fully understand its contents, it&amp;#39;s
+                not a polished user experience 🤓.
+ &lt;/p&gt;
+&lt;/article&gt;</description><pubDate>Mon 17 Feb 2020 11:55:42 AM CET</pubDate><guid isPermaLink="false"> How To Use Your Email Client For Physical Mail NDc2MDg1MjYxIDQxODUK</guid>
 </item>
-<item><title> Creating a Simple Static Blog </title><link>https://hugot.nl/posts/simple-static-blog/index.html</link><description>I love personal websites. It&#39;s amazing that people can share content with the
-entire world just by writing some text and throwing it behind a web server. I
-wanted to know what that is like, so I set out to create a personal website of
-my own. As you can see I succeeded in doing so, but getting here wasn&#39;t as
-straight forward as I initially thought it would be. I thought that, being a</description><pubDate>Sat 08 Feb 2020 12:14:16 PM CET</pubDate><guid isPermaLink="false"> Creating a Simple Static Blog MjU5OTIyNDIwMyA2MTI5Cg==</guid>
+<item><title> Creating a Simple Static Blog </title><link>https://hugot.nl/posts/simple-static-blog/index.html</link><description></description><pubDate>Sat 08 Feb 2020 12:14:16 PM CET</pubDate><guid isPermaLink="false"> Creating a Simple Static Blog MjU5OTIyNDIwMyA2MTI5Cg==</guid>
 </item>
-<item><title> Introduction </title><link>https://hugot.nl/posts/introduction/index.html</link><description>Hello, welcome to my blog! My name is Hugo. I am a 22 year old Software
-Engineering student from the Netherlands. Software development is a huge part
-of my life, I write a lot of (weird) programs to scratch my own itch and most
-software I create is open_source by default. I also run a one-man company that
-provides some IT services on the side.</description><pubDate>Sat 08 Feb 2020 09:30:06 AM CET</pubDate><guid isPermaLink="false"> Introduction MzYzMzkyNDgwOCA5MDcK</guid>
+<item><title> Introduction </title><link>https://hugot.nl/posts/introduction/index.html</link><description>&lt;article&gt;
+ &lt;h1&gt;
+  Introduction
+ &lt;/h1&gt;
+ &lt;p&gt;
+  Hello, welcome to my blog! My name is Hugo. I am a 22 year old Software Engineering
+                student from the Netherlands. Software development is a huge part of my life, I write a
+                lot of (weird) programs to scratch my own itch and most software I create
+                is
+  &lt;a href=&quot;https://github.com/hugot&quot;&gt;
+   open source
+  &lt;/a&gt;
+  by default. I also run a one-man
+                company that provides some IT services on the side.
+ &lt;/p&gt;
+ &lt;p&gt;
+  Between working on projects and studying I like to watch movies &amp;amp; series, listen to music
+                &amp;amp; podcasts, ride my road bike and take hikes.
+ &lt;/p&gt;
+ &lt;h2&gt;
+  What kind of blog is this?
+ &lt;/h2&gt;
+ &lt;p&gt;
+  Because I&amp;#39;m quite new to this and I want to keep myself interested, I won&amp;#39;t be
+                limiting myself to a single topic. You can expect me to post about a variety of topics
+                that may interest/annoy/excite me at any given moment.
+ &lt;/p&gt;
+ &lt;p&gt;
+  May my posts be interesting and my posting schedule be consistent 🤓🖖
+ &lt;/p&gt;
+ &lt;p&gt;
+  I hope to see you around! - Hugo
+ &lt;/p&gt;
+&lt;/article&gt;</description><pubDate>Sat 08 Feb 2020 09:30:06 AM CET</pubDate><guid isPermaLink="false"> Introduction MzYzMzkyNDgwOCA5MDcK</guid>
 </item>
 </channel>
 </rss>

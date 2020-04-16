@@ -5,8 +5,9 @@
 # page.
 
 # Check if required executables can be found
-if ! type readlink dirname html2text mv cat cksum base64; then
+if ! type readlink dirname html2text mv cat cksum base64 pup; then
     echo 'One or more required executables are not present. Generation cancelled' >&2
+    echo 'Note: You can install pup with "go get github.com/ericchiang/pup"' >&2
     exit 1
 fi
 
@@ -130,7 +131,10 @@ while read -r post_html; do
     title="$(tail -n +3 <<<"$text" | head -n 1 | tr -d '*')" || exit $?
 
     # Use the first 5 lines after the title as post excerpt.
-    excerpt="$(tail -n +4 <<<"$text" | head -n 5)" || exit $?
+    # excerpt="$(tail -n +4 <<<"$text" | head -n 5)" || exit $?
+
+    # Include full post content
+    excerpt="$(pup article < "$post_html" | escape-html)"
 
     # Escape the post html file name to safely use it in the generated html.
     href="$(escape-html <<<"$post_html")" || exit $?
