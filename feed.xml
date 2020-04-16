@@ -5,8 +5,8 @@
       <link>https://hugot.nl/blog.html</link>
       <description>Hugo's personal blog</description>
       <language>en-us</language>
-      <pubDate>Thu, 16 Apr 2020 08:01:27 CEST</pubDate>
-      <lastBuildDate>Thu, 16 Apr 2020 08:01:27 CEST</lastBuildDate>
+      <pubDate>Thu, 16 Apr 2020 08:09:31 +0200</pubDate>
+      <lastBuildDate>Thu, 16 Apr 2020 08:09:31 +0200</lastBuildDate>
       <docs>http://blogs.law.harvard.edu/tech/rss</docs>
       <generator>Hugo's Custom Bash Script</generator>
       <managingEditor>social@hugot.nl (Hugot)</managingEditor>
@@ -122,9 +122,9 @@
                 don&amp;#39;t recommend using it if you don&amp;#39;t fully understand its contents, it&amp;#39;s
                 not a polished user experience 🤓.
  &lt;/p&gt;
-&lt;/article&gt;</description><pubDate>Mon, 17 Feb 2020 11:55:42 CET</pubDate><guid isPermaLink="false"> How To Use Your Email Client For Physical Mail NDc2MDg1MjYxIDQxODUK</guid>
+&lt;/article&gt;</description><pubDate>Mon, 17 Feb 2020 11:55:42 +0100</pubDate><guid isPermaLink="false"> How To Use Your Email Client For Physical Mail NDc2MDg1MjYxIDQxODUK</guid>
 </item>
-<item><title> Creating a Simple Static Blog </title><link>https://hugot.nl/posts/simple-static-blog/index.html</link><description></description><pubDate>Sat, 08 Feb 2020 12:14:16 CET</pubDate><guid isPermaLink="false"> Creating a Simple Static Blog MjU5OTIyNDIwMyA2MTI5Cg==</guid>
+<item><title> Creating a Simple Static Blog </title><link>https://hugot.nl/posts/simple-static-blog/index.html</link><description></description><pubDate>Sat, 08 Feb 2020 12:14:16 +0100</pubDate><guid isPermaLink="false"> Creating a Simple Static Blog MjU5OTIyNDIwMyA2MTI5Cg==</guid>
 </item>
 <item><title> Introduction </title><link>https://hugot.nl/posts/introduction/index.html</link><description>&lt;article&gt;
  &lt;h1&gt;
@@ -159,7 +159,7 @@
  &lt;p&gt;
   I hope to see you around! - Hugo
  &lt;/p&gt;
-&lt;/article&gt;</description><pubDate>Sat, 08 Feb 2020 09:30:06 CET</pubDate><guid isPermaLink="false"> Introduction MzYzMzkyNDgwOCA5MDcK</guid>
+&lt;/article&gt;</description><pubDate>Sat, 08 Feb 2020 09:30:06 +0100</pubDate><guid isPermaLink="false"> Introduction MzYzMzkyNDgwOCA5MDcK</guid>
 </item>
 </channel>
 </rss>

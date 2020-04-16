@@ -68,7 +68,7 @@ print-blog-html-bottom() {
 }
 
 rfc-822-date-time() {
-    LC_ALL=C date "$@" +'%a, %d %b %Y %H:%M:%S %Z'
+    LC_ALL=C date "$@" --rfc-email
 }
 
 # Note: pubDate and lastBuildDate are both set to the current time.
