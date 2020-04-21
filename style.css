@@ -40,10 +40,13 @@ pre {
     }
 }
 
+body {
+    line-height: 1.4;
+}
+
 @media only all and (pointer: fine) {
     body {
-        font-size: calc(16px + 0.6vmin);
-        min-width: 500px;
-        max-width: 50em;
+        font-size: calc(14px + 0.6vmin);
+        max-width: 80ch;
     }
 }
