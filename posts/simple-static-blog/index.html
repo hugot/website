@@ -1,180 +1,184 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Creating a Simple Static Blog</title>
-        <link rel="stylesheet" type="text/css" href="../../style.css">
-        <meta charset="UTF-8">
-    </head>
+ <head>
+  <title>Creating a Simple Static Blog</title>
+  <link rel="stylesheet" type="text/css" href="../../style.css">
+  <meta charset="UTF-8">
+ </head>
 
-    <body>
-        <a href="../../blog.html">Home</a>
-        <h1>Creating a Simple Static Blog</h1>
+ <body>
+  <a href="../../blog.html">Home</a>
+  <h1>Creating a Simple Static Blog</h1>
 
-        <p>
-            I love personal websites. It's amazing that people can share content with the
-            entire world just by writing some text and throwing it behind a web server. I
-            wanted to know what that is like, so I set out to create a personal website of
-            my own. As you can see I succeeded in doing so, but getting here wasn't as
-            straight forward as I initially thought it would be. I thought that, being a
-            programmer and knowing a thing or two about web servers, setting up my own
-            website was going to be easy: How complicated can it be to throw some text
-            behind a web server, right?! I was wrong. Throwing text behind a web server
-            can be very complicated (and wasteful). But it doesn't have to be!
-        </p>
+  <p>
+   I love personal websites. It's amazing that people can share content with the
+   entire world just by writing some text and throwing it behind a web server. I
+   wanted to know what that is like, so I set out to create a personal website of
+   my own. As you can see I succeeded in doing so, but getting here wasn't as
+   straight forward as I initially thought it would be. I thought that, being a
+   programmer and knowing a thing or two about web servers, setting up my own
+   website was going to be easy: How complicated can it be to throw some text
+   behind a web server, right?! I was wrong. Throwing text behind a web server
+   can be very complicated (and wasteful). But it doesn't have to be!
+  </p>
 
-        <h2>The search for a CMS</h2>
-        <p>
-            The first thought that popped into my head when I got started was: <em>I need to
-            find myself a CMS</em>. I had a few requirements: my site should be
-            self-hosted, be lightweight, have no JavaScript in it and it should look
-            pretty. I also wanted to be able to write blog posts in markdown using my
-            trusty text editor. The first CMSes that came to mind were WordPress, Ghost,
-            Jekyll and Hugo. I don't want to get into too much detail, so I'll summarize
-            my judgments here without any nuance: Wordpress is the devil, Ghost is great
-            but too bulky and both Jekyll and Hugo required me to learn about theming and
-            project structure which I deemed too much effort. I just wanted to write some
-            text and throw it behind a web server, but all solutions I saw were sophisticated
-            programs that were designed to &quot;scale&quot;, support &quot;modern
-            workflows&quot; or be &quot;easy to use with integrated WYSIWYG
-            editors&quot;. I didn't feel like exploring the idea further and gave up on
-            having a website for a while.
-        </p>
+  <h2>The search for a CMS</h2>
+  <p>
+   The first thought that popped into my head when I got started was: <em>I need to
+    find myself a CMS</em>. I had a few requirements: my site should be
+   self-hosted, be lightweight, have no JavaScript in it and it should look
+   pretty. I also wanted to be able to write blog posts in markdown using my
+   trusty text editor. The first CMSes that came to mind were WordPress, Ghost,
+   Jekyll and Hugo. I don't want to get into too much detail, so I'll summarize
+   my judgments here without any nuance: Wordpress is the devil, Ghost is great
+   but too bulky and both Jekyll and Hugo required me to learn about theming and
+   project structure which I deemed too much effort. I just wanted to write some
+   text and throw it behind a web server, but all solutions I saw were sophisticated
+   programs that were designed to &quot;scale&quot;, support &quot;modern
+   workflows&quot; or be &quot;easy to use with integrated WYSIWYG
+   editors&quot;. I didn't feel like exploring the idea further and gave up on
+   having a website for a while.
+  </p>
 
-        <p>
-            Then, a few months back, I learned about writefreely. Writefreely is an open
-            source web application from write.as that lets users create blogs that
-            federate through the fediverse. I had just started to become acquainted with
-            the fediverse and it seemed like a cool idea to me at the time, so me and a
-            friend decided to set up our own instance. It wasn't too hard to set up and
-            once it was running I only needed a couple of hours to add some custom
-            style sheets. I finally had a fully functioning blog that satisfied all of my
-            needs!
-        </p>
+  <p>
+   Then, a few months back, I learned about writefreely. Writefreely is an open
+   source web application from write.as that lets users create blogs that
+   federate through the fediverse. I had just started to become acquainted with
+   the fediverse and it seemed like a cool idea to me at the time, so me and a
+   friend decided to set up our own instance. It wasn't too hard to set up and
+   once it was running I only needed a couple of hours to add some custom
+   style sheets. I finally had a fully functioning blog that satisfied all of my
+   needs!
+  </p>
 
-        <p>
-            After that the holiday season came along and I turned my back on blogging for
-            a while. When I checked on our instance three or four weeks later I was
-            displeased to discover that spammers had created accounts on the instance and
-            were posting spammy garbage. Sure, we could just close registrations. But this
-            event reminded me that hosting any dynamic web application on the public
-            internet is a big responsibility that involves keeping software up to date,
-            monitoring and doing other configuration/maintenance work. Not to mention
-            having to do regular database backups. I didn't feel like having to do any of
-            that, I already have by hands full with self-hosting a bunch of other
-            services. Once again I had found a complicated solution for a simple problem:
-            I just wanted to throw some text behind a web server, remember? Why did I need to use a CMS
-            again?
-        </p>
+  <p>
+   After that the holiday season came along and I turned my back on blogging for
+   a while. When I checked on our instance three or four weeks later I was
+   displeased to discover that spammers had created accounts on the instance and
+   were posting spammy garbage. Sure, we could just close registrations. But this
+   event reminded me that hosting any dynamic web application on the public
+   internet is a big responsibility that involves keeping software up to date,
+   monitoring and doing other configuration/maintenance work. Not to mention
+   having to do regular database backups. I didn't feel like having to do any of
+   that, I already have by hands full with self-hosting a bunch of other
+   services. Once again I had found a complicated solution for a simple problem:
+   I just wanted to throw some text behind a web server, remember? Why did I need to use a CMS
+   again?
+  </p>
 
-        <p>
-            CMSes seem to offer solutions to a problem that I don't have: I don't mind
-            writing plain html and I most certainly don't need a WISYWIG editor. I also
-            don't need plugins, dynamic code for analytics, pretty yaml or toml
-            configuration files, templates, extensive theming, admin panels, markdown,
-            mailing lists, comment threads or any other common CMS features. I just want
-            to throw some text behind a web server, so why not just write some HTML and do
-            exactly that?
-        </p>
+  <p>
+   CMSes seem to offer solutions to a problem that I don't have: I don't mind
+   writing plain html and I most certainly don't need a WISYWIG editor. I also
+   don't need plugins, dynamic code for analytics, pretty yaml or toml
+   configuration files, templates, extensive theming, admin panels, markdown,
+   mailing lists, comment threads or any other common CMS features. I just want
+   to throw some text behind a web server, so why not just write some HTML and do
+   exactly that?
+  </p>
 
-        <h2>A CMS in ~200 lines</h2>
-        <p>
-            It was decided: I was going to blog in plain HTML. Having figured out what I
-            actually wanted, I went to work. The first order of business was creating a
-            style sheet to make things look good. I made it my goal to use as little CSS
-            as possible and I managed to limit myself to just these 23 lines:
-        </p>
+  <h2>A CMS in ~200 lines</h2>
+  <p>
+   It was decided: I was going to blog in plain HTML. Having figured out what I
+   actually wanted, I went to work. The first order of business was creating a
+   style sheet to make things look good. I made it my goal to use as little CSS
+   as possible and I managed to limit myself to just these 23 lines:
+  </p>
 
-        <style type="text/css">
-         .code {
-             color: #f6f3e8;
-             background-color: #242424;
-         }
-         .builtin {
-             color: #e5786d;
-         }
-         .css-property {
-             color: #8ac6f2;
-             font-weight: bold;
-         }
-         .css-selector {
-             color: #cae682;
-         }
-         .custom {
-             color: #000000;
-             background-color: #f4ecd8;
-         }
-         .custom-1 {
-             color: #ffffff;
-             background-color: #5b4636;
-         }
-        </style>
+  <style type="text/css">
+   .code {
+   color: #f6f3e8;
+   background-color: #242424;
+   }
+   .builtin {
+   color: #e5786d;
+   }
+   .css-property {
+   color: #8ac6f2;
+   font-weight: bold;
+   }
+   .css-selector {
+   color: #cae682;
+   }
+   .custom {
+   color: #000000;
+   background-color: #f4ecd8;
+   }
+   .custom-1 {
+   color: #ffffff;
+   background-color: #5b4636;
+   }
+  </style>
 
-        <div class="code">
-            <pre>
-<span class="css-selector">html </span>{
+  <div class="code">
+   <pre>
+    <span class="css-selector">html </span>{
     <span class="css-property">font-family</span>: Helvetica, Arial, sans-serif;
     <span class="css-property">color</span>: <span class="custom-1">#5b4636</span>;
     <span class="css-property">background-color</span>: <span class="custom">#f4ecd8</span>;
-}
- 
-<span class="css-selector">body </span>{
+    }
+
+    <span class="css-selector">body </span>{
     <span class="css-property">padding</span>: 1em;
     <span class="css-property">margin</span>: auto;
-}
- 
-<span class="builtin">@media</span> only all and (pointer: coarse), (pointer: none) {
-    <span class="css-selector">body </span>{
-        <span class="css-property">font-size</span>: 5.5vmin;
     }
-}
- 
-<span class="builtin">@media</span> only all and (pointer: fine) {
+
+    <span class="builtin">@media</span> only all and (pointer: coarse), (pointer: none) {
     <span class="css-selector">body </span>{
-        <span class="css-property">font-size</span>: calc(16px + 0.6vmin);
-        <span class="css-property">min-width</span>: 500px;
-        <span class="css-property">max-width</span>: 50em;
+    <span class="css-property">font-size</span>: 5.5vmin;
     }
-}
-            </pre>
-        </div>
+    }
 
-        <p>
-            This is all the CSS I need to have a responsive website that looks pretty (I
-            stole the colors from firefox's reader mode btw). It's such a small amount
-            that I don't mind copy-pasting it at the top of all new HTML pages that I add
-            to my website. This might make it harder to change the styling later, but it
-            has the added benefit that each page is a standalone document. So for
-            example <code>wget PAGE_URL</code>  will download a HTML page that looks
-            exactly the same locally as it does on the web without having to download any
-            extra assets.
-        </p>
+    <span class="builtin">@media</span> only all and (pointer: fine) {
+    <span class="css-selector">body </span>{
+    <span class="css-property">font-size</span>: calc(16px + 0.6vmin);
+    <span class="css-property">min-width</span>: 500px;
+    <span class="css-property">max-width</span>: 50em;
+    }
+    }
+   </pre>
+  </div>
 
-        <p>
-            The next challenge was creating and maintaining the article listing page and
-            the RSS feed for the blog. I don't mind typing HTML pages, but typing out a
-            page and an RSS feed containing excerpts/titles from other files gets old soon
-            and I'd be bound to forget updating its content every once in a while. This
-            seemed like a perfect occasion to write a little bash script, so I did. You
-            can find the script <a href="../../generate-blog.bash">here (raw)</a> and
-            <a href="../../generate-blog.bash.html">here (pretty)</a>. What it basically
-            does is read in a file called posts.txt that has html filenames in it,
-            separated by newlines. Using those filenames and the contents of the files it
-            then generates a HTML page (called <a href="../../blog.html">blog.html</a>)
-            and an RSS feed (called <a href="../../feed.xml">feed.xml</a>).
-        </p>
+  <p>
+   This is all the CSS I need to have a responsive website that looks pretty (I
+   stole the colors from firefox's reader mode btw). It's such a small amount
+   that I don't mind copy-pasting it at the top of all new HTML pages that I add
+   to my website. This might make it harder to change the styling later, but it
+   has the added benefit that each page is a standalone document. So for
+   example <code>wget PAGE_URL</code>  will download a HTML page that looks
+   exactly the same locally as it does on the web without having to download any
+   extra assets.
+  </p>
 
-        <p>
-            I keep all of this neatly stored under version control
-            <a href="https://snorba.art/hugo/website">here</a>, so deploying a new version
-            is as easy as running <code>git pull</code> on my web server. I can honestly say that
-            this is the simplest, most user-friendly CMS that I have ever used, and it
-            only took me several months to figure out that this is exactly what I needed 🤓.
-        </p>
+  <p>
+   The next challenge was creating and maintaining the article listing page and
+   the RSS feed for the blog. I don't mind typing HTML pages, but typing out a
+   page and an RSS feed containing excerpts/titles from other files gets old soon
+   and I'd be bound to forget updating its content every once in a while. This
+   seemed like a perfect occasion to write a little bash script, so I did. You
+   can find the script <a href="../../generate-blog.bash">here (raw)</a> and
+   <a href="../../generate-blog.bash.html">here (pretty)</a>. What it basically
+   does is read in a file called posts.txt that has html filenames in it,
+   separated by newlines. Using those filenames and the contents of the files it
+   then generates a HTML page (called <a href="../../blog.html">blog.html</a>)
+   and an RSS feed (called <a href="../../feed.xml">feed.xml</a>).
+  </p>
 
-        <p>
-            So, to conclude this story: websites are just HTML. You don't need fancy
-            programs or WYSIWYG editors to create a website. Just a text editor, a web
-            server and some spare time.
-        </p>
-    </body>
+  <p>
+   I keep all of this neatly stored under version control
+   <a href="https://snorba.art/hugo/website">here</a>, so deploying a new version
+   is as easy as running <code>git pull</code> on my web server. I can honestly say that
+   this is the simplest, most user-friendly CMS that I have ever used, and it
+   only took me several months to figure out that this is exactly what I needed 🤓.
+  </p>
+
+  <p>
+   So, to conclude this story: websites are just HTML. You don't need fancy
+   programs or WYSIWYG editors to create a website. Just a text editor, a web
+   server and some spare time.
+  </p>
+ </body>
 </html>
+
+<!-- Local Variables: -->
+<!-- sgml-basic-offset: 1 -->
+<!-- End: -->

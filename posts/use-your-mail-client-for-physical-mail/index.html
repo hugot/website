@@ -1,95 +1,99 @@
 <!DOCTYPE HTML>
 <html>
-    <head>
-        <title>Use Your Email Client For Physical Mail</title>
-        <link rel="stylesheet" type="text/css" href="../../style.css">
-        <meta charset="UTF-8">
-    </head>
+ <head>
+  <title>Use Your Email Client For Physical Mail</title>
+  <link rel="stylesheet" type="text/css" href="../../style.css">
+  <meta charset="UTF-8">
+ </head>
 
-    <body>
-        <a href="../../blog.html">Home</a>
-        <article>
-            <h1>How To Use Your Email Client For Physical Mail</h1>
-            <p>
-                Whether it's to re-read a conversation, find a plane ticket I ordered or
-                check when a meeting was planned, I often find myself looking up old
-                emails. It's usually easy to do so because email clients are designed for
-                the task: Many of them support full-text search and some even complement
-                that with neat tagging and categorization systems. To be honest I have
-                become completely dependent on those features for my day to day
-                life. Having full-text search and some sort of categorization for email
-                can be a huge time saver. When it comes to physical mail however, I still
-                have to browse through stacks of paper to (hopefully) find what I'm
-                looking for. I figured that it'd be nice to use my fancy email client to
-                deal with physical mail as well, so I found a way to do just that. Turns
-                out it's pretty simple!
-            </p>
+ <body>
+  <a href="../../blog.html">Home</a>
+  <article>
+   <h1>How To Use Your Email Client For Physical Mail</h1>
+   <p>
+    Whether it's to re-read a conversation, find a plane ticket I ordered or
+    check when a meeting was planned, I often find myself looking up old
+    emails. It's usually easy to do so because email clients are designed for
+    the task: Many of them support full-text search and some even complement
+    that with neat tagging and categorization systems. To be honest I have
+    become completely dependent on those features for my day to day
+    life. Having full-text search and some sort of categorization for email
+    can be a huge time saver. When it comes to physical mail however, I still
+    have to browse through stacks of paper to (hopefully) find what I'm
+    looking for. I figured that it'd be nice to use my fancy email client to
+    deal with physical mail as well, so I found a way to do just that. Turns
+    out it's pretty simple!
+   </p>
 
-            <p>
-                The main objective here is to transform our physical mail into an email
-                that can be received, indexed and read by our email client of choice. Now,
-                one way to do that would be to type the contents of our mail into an email
-                by hand, but <i>ain't nobody got time for that!</i>. The (more appealing)
-                alternative is to use a document scanner. I have a single purpose scanner
-                unit from Canon that I hook up to my laptop for just this purpose.
-            </p>
+   <p>
+    The main objective here is to transform our physical mail into an email
+    that can be received, indexed and read by our email client of choice. Now,
+    one way to do that would be to type the contents of our mail into an email
+    by hand, but <i>ain't nobody got time for that!</i>. The (more appealing)
+    alternative is to use a document scanner. I have a single purpose scanner
+    unit from Canon that I hook up to my laptop for just this purpose.
+   </p>
 
-            <p>
-                It isn't as simple as just emailing a scanned document to ourselves
-                though: email clients are smart, but they can't understand a word of text
-                in our PDF or JPEG of a physical document. They need content to be in
-                plain text form in order to provide us with some of their best features
-                like full-text search. We'll have to somehow transform our scanned
-                documents into plain text that we can include in our email. To do this, we
-                can use tesseract. Tesseract is an optical character recognition (OCR)
-                engine, meaning that it can recognize text in images and extract it for
-                us. Installing it should be easy on Debian derivative distros like
-                Ubuntu. My laptop is running Debian unstable so I just ran <code>apt
-                install tesseract</code> and started using it. Using it is as easy as
-                upening up a terminal and typing <code>tesseract FILE.jpg
-                OUTPUT</code>. That command will save all the text that tesseract is able
-                to recognize in the image FILE.jpg to a file called OUTPUT.txt.
-            </p>
+   <p>
+    It isn't as simple as just emailing a scanned document to ourselves
+    though: email clients are smart, but they can't understand a word of text
+    in our PDF or JPEG of a physical document. They need content to be in
+    plain text form in order to provide us with some of their best features
+    like full-text search. We'll have to somehow transform our scanned
+    documents into plain text that we can include in our email. To do this, we
+    can use tesseract. Tesseract is an optical character recognition (OCR)
+    engine, meaning that it can recognize text in images and extract it for
+    us. Installing it should be easy on Debian derivative distros like
+    Ubuntu. My laptop is running Debian unstable so I just ran <code>apt
+     install tesseract</code> and started using it. Using it is as easy as
+    upening up a terminal and typing <code>tesseract FILE.jpg
+     OUTPUT</code>. That command will save all the text that tesseract is able
+    to recognize in the image FILE.jpg to a file called OUTPUT.txt.
+   </p>
 
-            <aside>
-                <i>
-                    Side note: I am Dutch, so most of my physical mail is in Dutch. To
-                    make tesseract better understand my mail I installed the
-                    tesseract-ocr-nld package using <code>apt install
-                    tesseract-ocr-nld</code>. You can check what other language packs are
-                    available by using <code>apt search tesseract-ocr</code>.
-                </i>
-            </aside>
+   <aside>
+    <i>
+     Side note: I am Dutch, so most of my physical mail is in Dutch. To
+     make tesseract better understand my mail I installed the
+     tesseract-ocr-nld package using <code>apt install
+      tesseract-ocr-nld</code>. You can check what other language packs are
+     available by using <code>apt search tesseract-ocr</code>.
+    </i>
+   </aside>
 
-            <p>
-                All we have to do from there is copy-paste the contents of that file into
-                an email and send it to ourselves! Depending on the formatting of the
-                input document, the output may not always be pleasant to read. We can
-                account for this by including the original document as an attachment to
-                the email. That way we get the best of both worlds: we can use the search
-                functionality of our email client to find the document, and then read it
-                in its original form by opening the attachment.
-            </p>
+   <p>
+    All we have to do from there is copy-paste the contents of that file into
+    an email and send it to ourselves! Depending on the formatting of the
+    input document, the output may not always be pleasant to read. We can
+    account for this by including the original document as an attachment to
+    the email. That way we get the best of both worlds: we can use the search
+    functionality of our email client to find the document, and then read it
+    in its original form by opening the attachment.
+   </p>
 
-            <p>
-                This is all easy enough, but I'm lazy. I didn't feel like opening up my
-                email client and doing manual copy-pasting, so I decided to automate the
-                process a little further. I have postfix setup on my system to relay to my
-                mail server, so I can simply use the <code>mail</code> command to send
-                emails without a GUI mail client. I combined that with tesseract in a
-                little bash script. The script iterates through all of its arguments and
-                interprets them as filenames of scanned documents. It calls tesseract to
-                extract text from them, concatenates the results, attaches the files to an
-                email and sends it to my personal email address. Now all I have to do is
-                run the script with filenames of some documents and my job is done. If
-                anyone is interested in an actual program that does the same thing and
-                doesn't require you to setup postfix, let me know! I might consider
-                authoring one if it's useful to more people than just myself. The script
-                I'm currently using can be found <a href="scan-to-mailpile.bash.html">here
-                (pretty)</a>  and <a href="scan-to-mailpile.bash">here (raw)</a>, but I
-                don't recommend using it if you don't fully understand its contents, it's
-                not a polished user experience 🤓.
-            </p>
-        </article>
-    </body>
+   <p>
+    This is all easy enough, but I'm lazy. I didn't feel like opening up my
+    email client and doing manual copy-pasting, so I decided to automate the
+    process a little further. I have postfix setup on my system to relay to my
+    mail server, so I can simply use the <code>mail</code> command to send
+    emails without a GUI mail client. I combined that with tesseract in a
+    little bash script. The script iterates through all of its arguments and
+    interprets them as filenames of scanned documents. It calls tesseract to
+    extract text from them, concatenates the results, attaches the files to an
+    email and sends it to my personal email address. Now all I have to do is
+    run the script with filenames of some documents and my job is done. If
+    anyone is interested in an actual program that does the same thing and
+    doesn't require you to setup postfix, let me know! I might consider
+    authoring one if it's useful to more people than just myself. The script
+    I'm currently using can be found <a href="scan-to-mailpile.bash.html">here
+     (pretty)</a>  and <a href="scan-to-mailpile.bash">here (raw)</a>, but I
+    don't recommend using it if you don't fully understand its contents, it's
+    not a polished user experience 🤓.
+   </p>
+  </article>
+ </body>
 </html>
+
+<!-- Local Variables: -->
+<!-- sgml-basic-offset: 1 -->
+<!-- End: -->
