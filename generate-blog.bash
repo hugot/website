@@ -86,7 +86,7 @@ print-post-html-top() {
   <div style="display: flex; flex-direction: horizontal;">
    <a href="../../blog.html">Blog</a>
    <span style="margin-left: 1em; margin-right: 1em;">|</span>
-   <a href="feed.xml">RSS Feed</a>
+   <a href="../../feed.xml">RSS Feed</a>
   </div>
     <article>
 EOF
