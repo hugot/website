@@ -17,7 +17,7 @@ here="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 printf 'Changing directory: '
 pushd "$here" || exit  $?
 
-posts_file="$here/posts.txt"
+posts_file="$here/publish.txt"
 
 if ! [[ -f "$posts_file" ]]; then
     printf 'Posts file "%s" not found. Generation cancelled.\n' "$posts_file" >&2
@@ -54,9 +54,9 @@ print-blog-html-top() {
 
     <body>
         <div style="display: flex; flex-direction: horizontal;">
-            <a href="index.html">Home</a>
-            <span style="margin-left: 1em; margin-right: 1em;">|</span>
-            <a href="feed.xml">RSS Feed</a>
+         <a href="index.html">Home</a>
+         <span style="margin-left: 1em; margin-right: 1em;">|</span>
+         <a href="feed.xml">RSS Feed</a>
         </div>
         <h1>Blog</h1>
 '
@@ -69,6 +69,41 @@ print-blog-html-bottom() {
 
 rfc-822-date-time() {
     LC_ALL=C date "$@" --rfc-email
+}
+
+print-post-html-top() {
+    declare title="$1"
+
+    cat <<EOF
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <title>${title}</title>
+  <link rel="stylesheet" type="text/css" href="../../style.css">
+  <meta charset="UTF-8">
+ </head>
+ <body>
+  <div style="display: flex; flex-direction: horizontal;">
+   <a href="../../blog.html">Blog</a>
+   <span style="margin-left: 1em; margin-right: 1em;">|</span>
+   <a href="feed.xml">RSS Feed</a>
+  </div>
+    <article>
+EOF
+}
+
+print-post-html-bottom() {
+    declare publish_date="$1" last_edit_date="$2"
+
+    cat <<EOF
+    <span class="publish-date">
+     <i>First published: ${publish_date}</i><br>
+     <i>Last edited: ${last_edit_date}</i>
+    </span>
+  </article>
+ </body>
+</html>
+EOF
 }
 
 # Note: pubDate and lastBuildDate are both set to the current time.
@@ -115,13 +150,17 @@ el-enclose() {
     printf '%s' "</$element_name>"
 }
 
+publish_dir="$here/publish"
+
 site_url="https://hugot.nl"
 
-blog_html="$here/blog.html"
+blog_html="$publish_dir/blog.html"
 new_html="$blog_html.new"
 
-blog_rss="$here/feed.xml"
+blog_rss="$publish_dir/feed.xml"
 new_rss="$blog_rss.new"
+
+mkdir -p "$publish_dir" || exit $?
 
 print-blog-html-top > "$new_html"
 print-blog-rss-top > "$new_rss"
@@ -132,20 +171,26 @@ while read -r post_html; do
 
     # The title should be on the 2nd line of text, right after the link to the
     # homepage. This is a bit inflexible but it will do for now.
-    title="$(tail -n +3 <<<"$text" | head -n 1 | tr -d '*')" || exit $?
+    title="$(head -n 1 <<<"$text" | tr -d '*')" || exit $?
 
     # Use the first 5 lines after the title as post excerpt.
-    excerpt="$(tail -n +4 <<<"$text" | head -n 5)" || exit $?
+    excerpt="$(tail -n +2 <<<"$text" | head -n 5)" || exit $?
 
     # Escape just the article element for use in the RSS feed article description.
     # This way the entire article can be read from an RSS reader.
-    article_html="$(pup article < "$post_html" | head -n -1 | tail -n +2 | escape-html)"
+    article_html="$({ head -n -1 | tail -n +2 | escape-html; } < "$post_html")"
 
     # Escape the post html file name to safely use it in the generated html.
     href="$(escape-html <<<"$post_html")" || exit $?
 
     post_dir="$(dirname "$post_html")" || exit $?
+    post_publish_dir="$publish_dir/posts/$(basename "$post_dir")" || exit $?
     pubdate_file="$post_dir/publish_date.txt"
+    checksum_file="$post_dir/last_checksum.txt"
+    last_edit_file="$post_dir/last_edit_date.txt"
+
+    current_checksum="$(cksum < "$post_html")"
+    declare checksum=''
 
     # Determine a publishing date for the post
     if [[ -f "$pubdate_file" ]]; then
@@ -155,8 +200,37 @@ while read -r post_html; do
         echo "$pubdate" > "$pubdate_file"
     fi
 
+    if [[ -f "$checksum_file" ]]; then
+        read -r checksum  < "$checksum_file"
+    else
+        echo "$current_checksum" > "$checksum_file"
+        checksum="$current_checksum"
+    fi
+
+    if [[ -f "$last_edit_file" ]]; then
+        read -r last_edit_date < "$last_edit_file"
+    fi
+
+    if [[ "$checksum" != "$current_checksum" ]]; then
+        last_edit_date="$(date)"
+
+        echo "$last_edit_date" > "$last_edit_file"
+        echo "$current_checksum" > "$checksum_file"
+    fi
+
     # Convert publishing date to be conform RFC 822
     pubdate="$(rfc-822-date-time --date="$pubdate")"
+    last_edit_date="$(rfc-822-date-time --date="$last_edit_date")"
+
+    declare post_index_file="$post_publish_dir/index.html"
+    if [[ "$checksum" != "$current_checksum" ]] || ! [[ -f "$post_index_file" ]]; then
+        printf 'Publishing %s\n' "$post_html" >&2
+        mkdir -p "$post_publish_dir"
+
+        print-post-html-top "$title" > "$post_index_file"
+        cat "$post_html" >> "$post_index_file"
+        print-post-html-bottom "$pubdate" "$last_edit_date" >> "$post_index_file"
+    fi
 
     {
         el div
@@ -181,7 +255,7 @@ while read -r post_html; do
         el-enclose description "$article_html"
         el-enclose pubDate "$pubdate"
 
-        echo "<guid isPermaLink=\"false\">$title$(base64 <(cksum <<<"$text"))</guid>"
+        echo "<guid isPermaLink=\"false\">$title$(base64 <<<"$checksum")</guid>"
 
         el-close item
     } >> "$new_rss"
@@ -192,5 +266,10 @@ print-blog-rss-bottom >> "$new_rss"
 
 mv -v "$new_html" "$blog_html" || exit $?
 mv -v "$new_rss" "$blog_rss" || exit $?
+
+cp -v "$here/style.css" "$publish_dir/style.css"
+cp -v "$here/index.html" "$publish_dir/index.html"
+
+cp -rv "$here/assets" "$publish_dir/assets"
 
 echo 'SUCCESS!'
