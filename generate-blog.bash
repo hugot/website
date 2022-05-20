@@ -165,9 +165,9 @@ mkdir -p "$publish_dir" || exit $?
 print-blog-html-top > "$new_html"
 print-blog-rss-top > "$new_rss"
 
-while read -r post_html; do
+while read -r post_html_path; do
     # Convert the post's html to text to make it easier to use the blog's text
-    text="$(html-to-text "$post_html" | escape-html)" || exit $?
+    text="$(html-to-text "$post_html_path" | escape-html)" || exit $?
 
     # The title should be on the 2nd line of text, right after the link to the
     # homepage. This is a bit inflexible but it will do for now.
@@ -178,18 +178,19 @@ while read -r post_html; do
 
     # Escape just the article element for use in the RSS feed article description.
     # This way the entire article can be read from an RSS reader.
-    article_html="$({ head -n -1 | tail -n +2 | escape-html; } < "$post_html")"
+    article_html="$({ head -n -1 | tail -n +2 | escape-html; } < "$post_html_path")"
 
     # Escape the post html file name to safely use it in the generated html.
-    href="$(escape-html <<<"$post_html")" || exit $?
+    href="$(escape-html <<<"$post_html_path")" || exit $?
 
-    post_dir="$(dirname "$post_html")" || exit $?
+    post_dir="$(dirname "$post_html_path")" || exit $?
     post_publish_dir="$publish_dir/posts/$(basename "$post_dir")" || exit $?
     pubdate_file="$post_dir/publish_date.txt"
     checksum_file="$post_dir/last_checksum.txt"
     last_edit_file="$post_dir/last_edit_date.txt"
 
-    current_checksum="$(cksum < "$post_html")"
+    read -rd '' post_html < "$post_html_path" || true
+    current_checksum="$(cksum <<<"$post_html")"
     declare checksum=''
 
     # Determine a publishing date for the post
@@ -224,11 +225,11 @@ while read -r post_html; do
 
     declare post_index_file="$post_publish_dir/index.html"
     if [[ "$checksum" != "$current_checksum" ]] || ! [[ -f "$post_index_file" ]]; then
-        printf 'Publishing %s\n' "$post_html" >&2
+        printf 'Publishing %s\n' "$post_html_path" >&2
         mkdir -p "$post_publish_dir"
 
         print-post-html-top "$title" > "$post_index_file"
-        cat "$post_html" >> "$post_index_file"
+        printf '%s\n' "$post_html" >> "$post_index_file"
         print-post-html-bottom "$pubdate" "$last_edit_date" >> "$post_index_file"
     fi
 
