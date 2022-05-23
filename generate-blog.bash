@@ -24,7 +24,7 @@ if ! [[ -f "$posts_file" ]]; then
     exit 1
 fi
 
-link-back-from-root() {
+link-back-to-root() {
     declare root="$1" directory="$2"
 
     directory="${directory#$root}"
@@ -47,62 +47,53 @@ html-to-text() {
     html2text -nobs -style compact "$@"
 }
 
-print-blog-html-top() {
-    echo '<html>
-    <head>
-        <title>Blog</title>
-        <link rel="stylesheet" type="text/css" href="style.css">
-        <meta charset="UTF-8">
-    </head>
-
-    <body>
-        <div style="display: flex; flex-direction: horizontal;">
-         <a href="index.html">Home</a>
-         <span style="margin-left: 1em; margin-right: 1em;">|</span>
-         <a href="feed.xml">RSS Feed</a>
-        </div>
-        <h1>Blog</h1>
-'
-}
-
-print-blog-html-bottom() {
-    echo '    </body>
-    </html>'
+timestamp() {
+    date +'%s'
 }
 
 rfc-822-date-time() {
     LC_ALL=C date "$@" --rfc-email
 }
 
-print-post-html-top() {
+print-html-top() {
     declare title="$1" root="$2" directory="$3"
+
+    declare backlink=''
+    backlink="$(link-back-to-root "$root" "$directory")" || return $?
 
     cat <<EOF
 <!DOCTYPE HTML>
 <html>
  <head>
   <title>${title}</title>
-  <link rel="stylesheet" type="text/css" href="../../style.css">
+  <link rel="stylesheet" type="text/css" href="${backlink}style.css">
   <meta charset="UTF-8">
  </head>
  <body>
-  <div style="display: flex; flex-direction: horizontal;">
-   <a href="$(link-back-from-root "$root" "$directory")blog.html">Blog</a>
-   <span style="margin-left: 1em; margin-right: 1em;">|</span>
-   <a href="../../feed.xml">RSS Feed</a>
-  </div>
+  <nav style="display: flex; flex-direction: horizontal;">
+   <div class="navitem"><a href="${backlink}index.html">Home</a></div>
+   <div class="navitem"><a href="${backlink}blog.html">Blog</a></div>
+   <div class="navitem"><a href="${backlink}feed.xml">RSS Feed</a></div>
+  </nav>
     <article>
 EOF
 }
+
+print-html-bottom() {
+    echo '</article>
+  </body>
+</html>'
+}
+
 
 print-post-html-bottom() {
     declare publish_date="$1" last_edit_date="$2"
 
     cat <<EOF
-    <span class="publish-date">
+    <section class="publish-date">
      <i>First published: ${publish_date}</i><br>
      <i>Last edited: ${last_edit_date}</i>
-    </span>
+    </section>
   </article>
  </body>
 </html>
@@ -154,7 +145,7 @@ el-enclose() {
 }
 
 publish-html() {
-    declare root="$1" source_dir="$2" publish_dir="$3" contents="$4"
+    declare root="$1" source_dir="$2" publish_dir="$3" contents="$4" title="$5"
 
     declare pubdate_file="$source_dir/publish_date.txt" \
             checksum_file="$source_dir/last_checksum.txt" \
@@ -162,13 +153,13 @@ publish-html() {
             current_checksum=''
 
     current_checksum="$(cksum <<<"$contents")"
-    declare checksum=''
+    declare checksum='' pubdate='' last_edit_date=''
 
     # Determine a publishing date for the post
     if [[ -f "$pubdate_file" ]]; then
         read -r pubdate < "$pubdate_file"
     else
-        pubdate="$(date)"
+        pubdate="$(timestamp)"
         echo "$pubdate" > "$pubdate_file"
     fi
 
@@ -184,23 +175,26 @@ publish-html() {
     fi
 
     if [[ "$checksum" != "$current_checksum" ]]; then
-        last_edit_date="$(date)"
+        last_edit_date="$(timestamp)"
 
         echo "$last_edit_date" > "$last_edit_file"
         echo "$current_checksum" > "$checksum_file"
     fi
 
-    declare pubdate='' last_edit_date=''
+    if [[ -z $last_edit_date ]]; then
+        last_edit_date="$pubdate"
+    fi
+
     # Convert publishing date to be conform RFC 822
-    pubdate="$(rfc-822-date-time --date="$pubdate")" || return $?
-    last_edit_date="$(rfc-822-date-time --date="$last_edit_date")" || return $?
+    pubdate="$(rfc-822-date-time --date="@$pubdate")" || return $?
+    last_edit_date="$(rfc-822-date-time --date="@$last_edit_date")" || return $?
 
     declare index_file="$publish_dir/index.html"
     if [[ "$checksum" != "$current_checksum" ]] || ! [[ -f "$index_file" ]]; then
         printf 'Publishing to %s\n' "$index_file" >&2
         mkdir -p "$publish_dir" || return $?
 
-        print-post-html-top "$title" "$root" "$publish_dir" > "$index_file"
+        print-html-top "$title" "$root" "$publish_dir" > "$index_file"
         printf '%s\n' "$contents" >> "$index_file"
         print-post-html-bottom "$pubdate" "$last_edit_date" >> "$index_file"
     fi
@@ -218,7 +212,7 @@ new_rss="$blog_rss.new"
 
 mkdir -p "$publish_dir" || exit $?
 
-print-blog-html-top > "$new_html"
+print-html-top 'Blog' "$publish_dir" "$publish_dir" > "$new_html"
 print-blog-rss-top > "$new_rss"
 
 while read -r post_html_path; do
@@ -243,7 +237,7 @@ while read -r post_html_path; do
     post_publish_dir="$publish_dir/posts/$(basename "$post_dir")" || exit $?
     read -rd '' post_html < "$post_html_path" || true
 
-    publish-html "$publish_dir" "$post_dir" "$post_publish_dir" "$post_html" || exit $?
+    publish-html "$publish_dir" "$post_dir" "$post_publish_dir" "$post_html" "$title" || exit $?
 
     {
         el 'div class="blog-feed-item"'
@@ -271,14 +265,16 @@ while read -r post_html_path; do
     } >> "$new_rss"
 done < "$posts_file"
 
-print-blog-html-bottom >> "$new_html"
+print-html-bottom >> "$new_html"
 print-blog-rss-bottom >> "$new_rss"
 
 mv -v "$new_html" "$blog_html" || exit $?
 mv -v "$new_rss" "$blog_rss" || exit $?
 
 cp -v "$here/style.css" "$publish_dir/style.css"
-cp -v "$here/index.html" "$publish_dir/index.html"
+
+read -rd '' index_html < "$here/index/index.html" || true
+publish-html "$publish_dir" "$here/index" "$publish_dir" "$index_html" "Hugo's Homepage"
 
 cp -rv "$here/assets" "$publish_dir/assets"
 

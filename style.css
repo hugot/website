@@ -2,6 +2,7 @@
 
 :root {
     --theme-bright: #f9f5eb;
+    --theme-text: #5b4636;
 }
 
 a:visited {
@@ -37,6 +38,7 @@ aside {
 
 .publish-date {
     font-size: 14px;
+    margin-top: 1em;
 }
 
 code {
@@ -52,6 +54,8 @@ code {
     flex-direction: column;
     justify-content: space-around;
     margin: -0.5em;
+    margin-top: 0;
+    margin-bottom: 0;
     flex-wrap: wrap;
 }
 
@@ -78,7 +82,6 @@ code {
 
     .publish-date {
         font-size: 12px;
-
     }
 
     aside {
@@ -130,4 +133,16 @@ code {
 .blog-feed-item h2 a:visited {
     color: #5b4636;
     text-decoration: none;
+}
+
+nav .navitem {
+    padding-right: 0.5em;
+}
+
+nav .navitem + .navitem a {
+    padding-left: 0.5em;
+}
+
+nav .navitem + .navitem::before {
+    content: "|";
 }
