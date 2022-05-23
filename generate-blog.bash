@@ -150,6 +150,59 @@ el-enclose() {
     printf '%s' "</$element_name>"
 }
 
+publish-html() {
+    declare source_dir="$1" publish_dir="$2" contents="$3"
+
+    declare pubdate_file="$source_dir/publish_date.txt" \
+            checksum_file="$source_dir/last_checksum.txt" \
+            last_edit_file="$source_dir/last_edit_date.txt" \
+            current_checksum=''
+
+    current_checksum="$(cksum <<<"$contents")"
+    declare checksum=''
+
+    # Determine a publishing date for the post
+    if [[ -f "$pubdate_file" ]]; then
+        read -r pubdate < "$pubdate_file"
+    else
+        pubdate="$(date)"
+        echo "$pubdate" > "$pubdate_file"
+    fi
+
+    if [[ -f "$checksum_file" ]]; then
+        read -r checksum  < "$checksum_file"
+    else
+        echo "$current_checksum" > "$checksum_file"
+        checksum="$current_checksum"
+    fi
+
+    if [[ -f "$last_edit_file" ]]; then
+        read -r last_edit_date < "$last_edit_file"
+    fi
+
+    if [[ "$checksum" != "$current_checksum" ]]; then
+        last_edit_date="$(date)"
+
+        echo "$last_edit_date" > "$last_edit_file"
+        echo "$current_checksum" > "$checksum_file"
+    fi
+
+    declare pubdate='' last_edit_date=''
+    # Convert publishing date to be conform RFC 822
+    pubdate="$(rfc-822-date-time --date="$pubdate")" || return $?
+    last_edit_date="$(rfc-822-date-time --date="$last_edit_date")" || return $?
+
+    declare index_file="$publish_dir/index.html"
+    if [[ "$checksum" != "$current_checksum" ]] || ! [[ -f "$index_file" ]]; then
+        printf 'Publishing to %s\n' "$index_file" >&2
+        mkdir -p "$publish_dir" || return $?
+
+        print-post-html-top "$title" > "$index_file"
+        printf '%s\n' "$contents" >> "$index_file"
+        print-post-html-bottom "$pubdate" "$last_edit_date" >> "$index_file"
+    fi
+}
+
 publish_dir="$here/publish"
 
 site_url="https://hugot.nl"
@@ -185,61 +238,14 @@ while read -r post_html_path; do
 
     post_dir="$(dirname "$post_html_path")" || exit $?
     post_publish_dir="$publish_dir/posts/$(basename "$post_dir")" || exit $?
-    pubdate_file="$post_dir/publish_date.txt"
-    checksum_file="$post_dir/last_checksum.txt"
-    last_edit_file="$post_dir/last_edit_date.txt"
-
     read -rd '' post_html < "$post_html_path" || true
-    current_checksum="$(cksum <<<"$post_html")"
-    declare checksum=''
 
-    # Determine a publishing date for the post
-    if [[ -f "$pubdate_file" ]]; then
-        read -r pubdate < "$pubdate_file"
-    else
-        pubdate="$(date)"
-        echo "$pubdate" > "$pubdate_file"
-    fi
-
-    if [[ -f "$checksum_file" ]]; then
-        read -r checksum  < "$checksum_file"
-    else
-        echo "$current_checksum" > "$checksum_file"
-        checksum="$current_checksum"
-    fi
-
-    if [[ -f "$last_edit_file" ]]; then
-        read -r last_edit_date < "$last_edit_file"
-    fi
-
-    if [[ "$checksum" != "$current_checksum" ]]; then
-        last_edit_date="$(date)"
-
-        echo "$last_edit_date" > "$last_edit_file"
-        echo "$current_checksum" > "$checksum_file"
-    fi
-
-    # Convert publishing date to be conform RFC 822
-    pubdate="$(rfc-822-date-time --date="$pubdate")"
-    last_edit_date="$(rfc-822-date-time --date="$last_edit_date")"
-
-    declare post_index_file="$post_publish_dir/index.html"
-    if [[ "$checksum" != "$current_checksum" ]] || ! [[ -f "$post_index_file" ]]; then
-        printf 'Publishing %s\n' "$post_html_path" >&2
-        mkdir -p "$post_publish_dir"
-
-        print-post-html-top "$title" > "$post_index_file"
-        printf '%s\n' "$post_html" >> "$post_index_file"
-        print-post-html-bottom "$pubdate" "$last_edit_date" >> "$post_index_file"
-    fi
+    publish-html "$post_dir" "$post_publish_dir" "$post_html"
 
     {
         el div
-
         printf '<h2 style="margin-bottom: 0.1em;"><a href="%s">%s</a></h2>' "$href" "$title"
-
         printf '<i style="font-size: 0.8em;">%s</i>' "$pubdate"
-
         el 'p style="margin-top: 0.5em;"'
         printf '%s ... <a href="%s">Continue reading</a>' "$excerpt" "$href"
         el-close p
