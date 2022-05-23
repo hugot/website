@@ -5,8 +5,9 @@
 # page.
 
 # Check if required executables can be found
-if ! type readlink dirname html2text mv cat cksum base64 pup; then
+if ! output="$(type readlink dirname html2text mv cat cksum base64 pup 2>&1)"; then
     echo 'One or more required executables are not present. Generation cancelled' >&2
+    echo "'type' output: $output" >&2
     echo 'Note: You can install pup with "go get github.com/ericchiang/pup"' >&2
     exit 1
 fi
