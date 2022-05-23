@@ -229,16 +229,16 @@ while read -r post_html_path; do
     # Use the first 5 lines after the title as post excerpt.
     excerpt="$(tail -n +2 <<<"$text" | head -n 5)" || exit $?
 
+    read -rd '' post_html < "$post_html_path" || true
     # Escape just the article element for use in the RSS feed article description.
     # This way the entire article can be read from an RSS reader.
-    article_html="$({ head -n -1 | tail -n +2 | escape-html; } < "$post_html_path")"
+    article_html="$(escape-html <<<"$post_html")"
 
     # Escape the post html file name to safely use it in the generated html.
     href="$(escape-html <<<"$post_html_path")" || exit $?
 
     post_dir="$(dirname "$post_html_path")" || exit $?
     post_publish_dir="$publish_dir/posts/$(basename "$post_dir")" || exit $?
-    read -rd '' post_html < "$post_html_path" || true
 
     publish-html "$publish_dir" "$post_dir" "$post_publish_dir" "$post_html" "$title" || exit $?
 
