@@ -1,5 +1,9 @@
 @import "assets/hack.css";
 
+:root {
+    --theme-bright: #f9f5eb;
+}
+
 a:visited {
     color: #c2e;
 }
@@ -44,7 +48,28 @@ code {
     white-space: nowrap;
 }
 
-@media only all and (min-width: 640px) {
+.cardbox {
+    flex-direction: column;
+    justify-content: space-around;
+    margin: -0.5em;
+    flex-wrap: wrap;
+}
+
+.cardbox .card {
+    max-width: initial;
+    background-color: var(--theme-bright);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    border-radius: 0.5rem;
+    padding: 1em;
+    margin: 0.5em;
+}
+
+.cardbox .card header {
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+@media only all and (min-width: 82ch) {
     body {
         line-height: 1.4;
         font-size: 16px;
@@ -64,6 +89,16 @@ code {
         padding: 1em;
         margin: 1em;
     }
+
+    .cardbox {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .cardbox .card {
+        max-width: 35ch;
+    }
+
 }
 
 @media only all and (min-width: 1920px) {
