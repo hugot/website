@@ -55,18 +55,6 @@ print-blog-html-top() {
         <meta charset="UTF-8">
     </head>
 
-    <style type="text/css">
-     h2 a {
-         color: #5b4636;
-         text-decoration: none;
-     }
-
-     h2 a:visited {
-         color: #5b4636;
-         text-decoration: none;
-     }
-    </style>
-
     <body>
         <div style="display: flex; flex-direction: horizontal;">
          <a href="index.html">Home</a>
@@ -258,7 +246,7 @@ while read -r post_html_path; do
     publish-html "$publish_dir" "$post_dir" "$post_publish_dir" "$post_html" || exit $?
 
     {
-        el div
+        el 'div class="blog-feed-item"'
         printf '<h2 style="margin-bottom: 0.1em;"><a href="%s">%s</a></h2>' "$href" "$title"
         printf '<i style="font-size: 0.8em;">%s</i>' "$pubdate"
         el 'p style="margin-top: 0.5em;"'
