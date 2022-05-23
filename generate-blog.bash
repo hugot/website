@@ -24,6 +24,21 @@ if ! [[ -f "$posts_file" ]]; then
     exit 1
 fi
 
+link-back-from-root() {
+    declare root="$1" directory="$2"
+
+    directory="${directory#$root}"
+    directory="${directory%/}"
+
+    declare link=''
+    while read -rd '/' slug; do
+        link="${link}../"
+    done <<<"$directory"
+
+    echo "$link"
+}
+
+
 escape-html() {
     sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g; s/'"'"'/\&#39;/g'
 }
@@ -72,7 +87,7 @@ rfc-822-date-time() {
 }
 
 print-post-html-top() {
-    declare title="$1"
+    declare title="$1" root="$2" directory="$3"
 
     cat <<EOF
 <!DOCTYPE HTML>
@@ -84,7 +99,7 @@ print-post-html-top() {
  </head>
  <body>
   <div style="display: flex; flex-direction: horizontal;">
-   <a href="../../blog.html">Blog</a>
+   <a href="$(link-back-from-root "$root" "$directory")blog.html">Blog</a>
    <span style="margin-left: 1em; margin-right: 1em;">|</span>
    <a href="../../feed.xml">RSS Feed</a>
   </div>
@@ -151,7 +166,7 @@ el-enclose() {
 }
 
 publish-html() {
-    declare source_dir="$1" publish_dir="$2" contents="$3"
+    declare root="$1" source_dir="$2" publish_dir="$3" contents="$4"
 
     declare pubdate_file="$source_dir/publish_date.txt" \
             checksum_file="$source_dir/last_checksum.txt" \
@@ -197,7 +212,7 @@ publish-html() {
         printf 'Publishing to %s\n' "$index_file" >&2
         mkdir -p "$publish_dir" || return $?
 
-        print-post-html-top "$title" > "$index_file"
+        print-post-html-top "$title" "$root" "$publish_dir" > "$index_file"
         printf '%s\n' "$contents" >> "$index_file"
         print-post-html-bottom "$pubdate" "$last_edit_date" >> "$index_file"
     fi
@@ -240,7 +255,7 @@ while read -r post_html_path; do
     post_publish_dir="$publish_dir/posts/$(basename "$post_dir")" || exit $?
     read -rd '' post_html < "$post_html_path" || true
 
-    publish-html "$post_dir" "$post_publish_dir" "$post_html"
+    publish-html "$publish_dir" "$post_dir" "$post_publish_dir" "$post_html" || exit $?
 
     {
         el div
