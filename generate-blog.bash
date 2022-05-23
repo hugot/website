@@ -75,12 +75,14 @@ print-html-top() {
    <div class="navitem"><a href="${backlink}blog.html">Blog</a></div>
    <div class="navitem"><a href="${backlink}feed.xml">RSS Feed</a></div>
   </nav>
+   <main
     <article>
 EOF
 }
 
 print-html-bottom() {
-    echo '</article>
+    echo '</main>
+   </article>
   </body>
 </html>'
 }
@@ -271,11 +273,26 @@ print-blog-rss-bottom >> "$new_rss"
 mv -v "$new_html" "$blog_html" || exit $?
 mv -v "$new_rss" "$blog_rss" || exit $?
 
-cp -v "$here/style.css" "$publish_dir/style.css"
+cp -v "$here/style.css" "$publish_dir/style.css" || exit $?
 
 read -rd '' index_html < "$here/index/index.html" || true
 publish-html "$publish_dir" "$here/index" "$publish_dir" "$index_html" "Hugo's Homepage"
 
-cp -rv "$here/assets" "$publish_dir/assets"
+for project_dir in "$here/projects"/*; do
+    project_name="$(basename "$project_dir")" || exit $?
+
+    text="$(html-to-text "$project_dir/index.html" | escape-html)" || exit $?
+    title="$(head -n 1 <<<"$text" | tr -d '*')" || exit $?
+
+    read -rd '' project_html < "$project_dir/index.html" || true
+
+    publish-html "$publish_dir" \
+                 "$project_dir" \
+                 "$publish_dir/projects/$project_name" \
+                 "$project_html" \
+                 "$title"
+done
+
+cp -rv "$here/assets" "$publish_dir/assets" || exit $?
 
 echo 'SUCCESS!'

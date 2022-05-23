@@ -66,12 +66,21 @@ code {
     border-radius: 0.5rem;
     padding: 1em;
     margin: 0.5em;
+    display: block;
+    text-decoration: none;
+    color: var(--theme-text);
+    flex-grow: 1;
 }
 
 .cardbox .card header {
     font-size: 1.3em;
     font-weight: bold;
 }
+
+.cardbox .card p {
+    margin: 0;
+}
+
 
 @media only all and (min-width: 82ch) {
     body {
