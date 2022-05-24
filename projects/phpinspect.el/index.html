@@ -1,8 +1,65 @@
-<h1>phpinspect.el</h1>
+<header>phpinspect.el</header>
 
 <p>
- phpinspect is ..
+ phpinspect is an emacs lisp package that aims to provide emacs with IDE-like
+ features for PHP files and projects. Among other things phpinspect provides PHP
+ developers with code completion, import management and project navigation
+ features. Under the hood is a custom PHP parser that is implemented in 100%
+ pure emacs lisp.
 </p>
+
+<section>
+ <header>Why?</header>
+ <p>
+  Over the years I have tried using a plethora of solutions for PHP code
+  intelligence within emacs. I tried everything ranging from language server
+  implementations to ctags based solutiions, to custom emacs integrations for
+  software like phpactor. While some solutions worked fine in some scenarios, all
+  of them had problems for my use cases. I encountered performance issues
+  (language servers implemented in PHP would have massive memory consumption),
+  lack of sophistication (ctags based solutions don't understand object oriented
+  code well enough) or simply a lack of features. After a while I got obsessed
+  enough to start implementing a solution myself with the main goals of being
+  able to work with large projects, being sophisticated enough to understand
+  object oriented code and being simple to setup from within emacs.
+ </p>
+</section>
+
+<section>
+ <header>Current Status</header>
+ <p>
+  While the software is already useful to me in its current state, it needs more
+  polish and an overhaul of some features before it's ready for others to try
+  out comfortably. That is why I am working towards a
+  <a href="https://git.snorba.art/hugo/phpinspect.el/milestone/1">
+   <em>ready for fieldtesting milestone</em>
+  </a>. I hope to get the project ready for others to try out before the end of
+  summer this year (2022).
+ </p>
+</section>
+
+
+<section>
+ <header>Source Code</header>
+ <section>
+  <header>Github</header>
+  <p>
+   The source code is available
+   on <a href="https://github.com/hugot/phpinspect.el">github</a>, issues or
+   pull requests made there will be welcomed.
+  </p>
+ </section>
+ <section>
+  <header>Snorbaart</header>
+  <p>
+   The main repository resides at
+   a <a href="https://git.snorba.art/hugo/phpinspect.el">selfhosted git
+   server</a> and is mirrored to github every 8
+   hours. An <a href="https://git.snorba.art/hugo/phpinspect.el/issues">issue
+   tracker</a> with the things I'm currently working on can also be found there.
+  </p>
+ </section>
+</section>
 
 <!-- Local Variables: -->
 <!-- sgml-basic-offset: 1 -->

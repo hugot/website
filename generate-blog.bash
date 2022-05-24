@@ -76,7 +76,7 @@ print-html-top() {
    <div class="navitem"><a href="${backlink}blog.html">Blog</a></div>
    <div class="navitem"><a href="${backlink}feed.xml">RSS Feed</a></div>
   </nav>
-   <main
+   <main>
     <article>
 EOF
 }
