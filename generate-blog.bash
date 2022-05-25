@@ -201,6 +201,10 @@ publish-html() {
         printf '%s\n' "$contents" >> "$index_file"
         print-post-html-bottom "$pubdate" "$last_edit_date" >> "$index_file"
     fi
+
+    if [[ -d "$source_dir/assets" ]]; then
+        cp -rv "$source_dir/assets" "$publish_dir/"
+    fi
 }
 
 publish_dir="$here/publish"
