@@ -1,8 +1,159 @@
 <header>DNS YAML</header>
 
 <p>
-
+ DNS YAML is infrastructure of code for the management of authoritative DNS
+ records. It allows its users to create yaml files describing the desired state
+ of their authoritative DNS records, which can then be applied to their DNS
+ server. DNS YAML does this through a concept called "mappers", which are
+ adapters that are able to interact with different types of authoritative DNS
+ solutions. The currently supported mappers are:
 </p>
+
+<table>
+ <tr><td><b>powerdns</b></td><td>Maps to a powerdns mysql database.</td></tr>
+ <tr><td><b>scaleway</b></td><td>Maps to the scaleway DNS service.</td></tr>
+ <tr><td><b>dry</b></td><td>Reads in the document and checks if it's valid
+   without actually mapping to anything.</td></tr>
+</table>
+
+<p>
+ The software can be obtained from the
+  <a href="https://github.com/hugot/dns-yml">source code repository</a>  or
+  as a docker image from <a href="https://hub.docker.com/r/hugotty/dns-yml">docker hub</a>.
+</p>
+
+
+<section>
+ <header>Who Would This Be Useful For?</header>
+ <section>
+  <header>The Lone Selfhoster</header>
+  <p>
+   If you're just managing your personal infrastructure and want to have a way to
+   manage the state of your DNS within the same version control repository as your
+   ansible scripts, DNS YAML will be the missing piece of the puzzle for you.
+  </p>
+ </section>
+ <section>
+  <header>The Cloud-Native Company</header>
+  <p>
+   While it hasn't been tested in large deployments, I think that this DNS YAML
+   could theoretically be a great addition for large bodies of people who work
+   on applications within the same infrastructure. Traditionally, DNS records
+   are something that is managed by sysadmins who edit zone files by hand, or
+   through self-service UIs that some employees are allowed to acces. If one
+   were to, in stead, use version controlled DNS YAML documents in combination
+   with CI/CD, the following things would be achieved:
+  </p>
+
+  <ol>
+   <li>
+    Employees can create pull requests with DNS record changes that their
+    projects require. These could be reviewed and merged by employees who are
+    responsible for infrastructure, after which they can be applied to
+    staging/production environments through the CI/CD system.
+   </li>
+   <li>
+    The state of the DNS is reproducible. If the DNS service were to fail and
+    its state was lost, it would be trivial to replace it and reapply its state
+    with the DNS YAML document.
+   </li>
+   <li>
+    Changes to DNS records are autidable through version control.
+   </li>
+   <li>
+    Lastly, but not unimportantly, automated CI jobs could be setup for DNS YAML
+    repositories to scan for stale DNS records that point to infrastructure that
+    is no longer under the companies control. This is important, because leaving
+    stale records unattended can be a security risk. Take A records that point
+    to IP addresses that are not controlled by the company anymore for
+    example. Those could be abused by bad actors who want to impersonate the
+    company if they were to get their hands on that old IP address.
+   </li>
+  </ol>
+ </section>
+</section>
+
+<section>
+ <header>An Example</header>
+ <p>
+  To help you get an idea, here is an example of a DNS YAML document, with below
+  it a Done CI file that could be used to check the document for validity and
+  apply it to production. The document contains examples of the different types
+  of record values that DNS YAML allows to be configured, which
+  are <code>raw</code>, <code>file</code> or <code>round-robin</code>.
+ </p>
+ <div class="code-sample">
+  <pre><span>domains:</span></pre>
+  <pre>  <span>example.com:</span></pre>
+  <pre>    <span>records:</span></pre>
+  <pre>      - <span>type: A</span></pre>
+  <pre>        <span>name: example.com</span></pre>
+  <pre>        <span>content:</span></pre>
+  <pre>          <span>type: raw</span></pre>
+  <pre>          <span>value: 127.0.0.1</span></pre>
+  <pre>      - <span>type: A</span></pre>
+  <pre>        <span>name: example.com</span></pre>
+  <pre>        <span>content:</span></pre>
+  <pre>          <span>type: round-robin</span></pre>
+  <pre>          <span>value: http-cluster</span></pre>
+  <pre>  <span>mail.example.com:</span></pre>
+  <pre>    <span>records:</span></pre>
+  <pre>      - <span>type: MX</span></pre>
+  <pre>        <span>name: mx.mail.example.com</span></pre>
+  <pre>        <span>content:</span></pre>
+  <pre>          <span>type: round-robin</span></pre>
+  <pre>          <span>value: mail-exchange</span></pre>
+  <pre>      - <span>type: TXT</span></pre>
+  <pre>        <span>name: _dkim.mx.mail.example.com</span></pre>
+  <pre>        <span>content:</span></pre>
+  <pre>          <span>type: file</span></pre>
+  <pre>          <span>value: dkim/mail.example.com.txt</span></pre>
+  <pre></pre>
+  <pre><span>round_robins:</span></pre>
+  <pre>  <span>http-cluster:</span></pre>
+  <pre>    - <span>127.0.0.1</span></pre>
+  <pre>    - <span>127.0.0.2</span></pre>
+  <pre>    - <span>127.0.0.3</span></pre>
+  <pre>  <span>mail-exchange:</span></pre>
+  <pre>    - <span>mxa.examplemail.com</span></pre>
+  <pre>    - <span>mxb.examplemail.com</span></pre>
+ </div>
+</section>
+
+<section>
+ <p>
+  Below is a Drone CI pipeline configuration that validates the documents by
+  using the <code>dry</code> mapper and then applies the document to production
+  through the scaleway DNS service API using the <code>scaleway</code> mapper.
+ </p>
+ <div class="code-sample">
+  <pre>kind: pipeline</pre>
+  <pre>type: docker</pre>
+  <pre>name: default</pre>
+  <pre>steps:</pre>
+  <pre>  - name: validate</pre>
+  <pre>    image: hugotty/dns-yml:latest</pre>
+  <pre>    commands:</pre>
+  <pre>      - /dns-yml -mapper dry ./dns.yml</pre>
+  <pre></pre>
+  <pre>  - name: publish</pre>
+  <pre>    image: hugotty/dns-yml:latest</pre>
+  <pre>    environment:</pre>
+  <pre>      DNS_YML_SCW_ORG_ID:</pre>
+  <pre>        from_secret: scaleway_org_id</pre>
+  <pre>      DNS_YML_SCW_ACCESS_KEY:</pre>
+  <pre>        from_secret: scaleway_access_key</pre>
+  <pre>      DNS_YML_SCW_SECRET_KEY:</pre>
+  <pre>        from_secret: scaleway_secret</pre>
+  <pre>    commands:</pre>
+  <pre>      - /dns-yml ./dns.yml</pre>
+  <pre>    when:</pre>
+  <pre>      branch:</pre>
+  <pre>        - master</pre>
+  <pre>    event:</pre>
+  <pre>      - push</pre>
+ </div>
+</section>
 
 <!-- Local Variables: -->
 <!-- sgml-basic-offset: 1 -->

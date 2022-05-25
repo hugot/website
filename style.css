@@ -3,6 +3,7 @@
 :root {
     --theme-bright: #f9f5eb;
     --theme-text: #5b4636;
+    --theme-default: #f4ecd8;
 }
 
 a:visited {
@@ -36,9 +37,11 @@ p {
     margin-block-start: 0;
 }
 
-p + p {
+p + p, section + section, table + table, table + p, p + table {
     margin-block-start: 1em;
 }
+
+
 
 aside {
     width: inherit;
@@ -198,4 +201,55 @@ article > section > section > section > header {
     font-size: 1em;
     margin-block-start: 1.33em;
     margin-block-end: 1.33em;
+}
+
+.code-sample {
+    font-family: Hack, monospace;
+    background-color: var(--theme-bright);
+    border-radius: 0.2em;
+    counter-reset: line;
+    padding: 0.5em;
+    border-left: 0.2em solid var(--theme-text);
+    border-bottom: 0.2em solid var(--theme-text);
+}
+
+.code-sample pre {
+    margin: 0;
+    padding: 0;
+}
+
+.code-sample > pre:before {
+    counter-increment: line;
+    content: counter(line);
+    display: inline-block;
+    padding-right: 0.3em;
+    min-width: 3ch;
+}
+
+table {
+    border: 1px solid var(--theme-text);
+    min-width: 100%;
+    margin: 0;
+    background-color: var(--theme-bright);
+    border-radius: 0.5rem;
+    border-spacing: 0;
+}
+
+table td {
+    padding: 0.2em;
+}
+
+table td + td, table th + th {
+    margin: 0;
+    border-left: 1px solid var(--theme-text);
+}
+
+table th, table td {
+    padding: 0.3em;
+    text-align: left;
+    vertical-align: top;
+}
+
+table tr:not(:first-child) td {
+    border-top: 1px solid var(--theme-text);
 }
