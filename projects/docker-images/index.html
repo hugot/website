@@ -1,0 +1,82 @@
+<header>Docker Images</header>
+<p>
+ I maintain a few docker images that I use for my development environment and/or
+ for deployments in my personal infrastructure.
+</p>
+
+<section>
+ <header>
+  hugotty/php-fpm
+
+  <a style="float: right" href="https://ci.snorba.art/hugo/docker-php-fpm">
+   <img src="https://ci.snorba.art/api/badges/hugo/docker-php-fpm/status.svg?ref=refs/heads/php8" />
+  </a>
+ </header>
+ <p>
+  This is a php-fpm container that exposes its fastcgi protocol over tcp on port
+  3000. Use it in combination with a webserver to deploy PHP websites. Opcache
+  is enabled by default.
+ </p>
+ <ul>
+  <li><a href="https://git.snorba.art/hugo/docker-php-fpm/src/branch/php8">Source Code</a></li>
+  <li><a href="https://hub.docker.com/r/hugotty/php8-fpm">Docker Hub</a></li>
+ </ul>
+</section>
+
+<section>
+ <header>
+  hugotty/nginx
+
+  <a style="float: right" href="https://ci.snorba.art/hugo/docker-nginx">
+   <img src="https://ci.snorba.art/api/badges/hugo/docker-nginx/status.svg" />
+  </a>
+ </header>
+ <p>
+  This is a vanilla nginx container that uses the debian distribution's nginx
+  package. Mount your configuration in <code>/etc/nginx/sites-enabled</code> and
+  you're off to the races!
+ </p>
+ <ul>
+  <li><a href="https://git.snorba.art/hugo/docker-nginx">Source Code</a></li>
+  <li><a href="https://hub.docker.com/r/hugotty/nginx">Docker Hub</a></li>
+ </ul>
+</section>
+
+<section>
+ <header>hugotty/workspace</header>
+ <p>
+  This is a container that I use in combination with a golang binary to package
+  my dotfiles into a portable development environment. I might add a more
+  elaborate explanation of this later on when it's a bit more fleshed out. Until
+  then maybe take a look at the code if you want to see how it works right now
+  :).
+ </p>
+
+ <ul>
+  <li><a href="https://git.snorba.art/hugo/workspace">Source Code</a></li>
+  <li><a href="https://hub.docker.com/r/hugotty/workspace">Docker Hub</a></li>
+ </ul>
+
+ <section>
+  <p>Example usage of the CLI executable:</p>
+  <div class="code-sample">
+   <pre># Start a bash shell inside the container, </pre>
+   <pre># with home directory mounted</pre>
+   <pre>workspace run</pre>
+   <pre></pre>
+   <pre># Run emacs inside the container. If present,</pre>
+   <pre># workspace will mount an X11 socket</pre>
+   <pre># so GUI emacs is an available option.</pre>
+   <pre>workspace run emacs</pre>
+   <pre></pre>
+   <pre># You can use "run" to execute any command you want</pre>
+   <pre>workspace run COMMAND</pre>
+  </div>
+ </section>
+
+</section>
+
+
+<!-- Local Variables: -->
+<!-- sgml-basic-offset: 1 -->
+<!-- End: -->
