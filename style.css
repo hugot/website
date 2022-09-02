@@ -4,20 +4,22 @@
     --theme-bright: #f9f5eb;
     --theme-text: #5b4636;
     --theme-default: #f4ecd8;
+    --theme-link: #0095dd;
+    --theme-link-visited: #c2e;
 }
 
 a:visited {
-    color: #c2e;
+    color: var(--theme-link-visited);
 }
 
 a {
-    color: #0095dd;
+    color: var(--theme-link);
 }
 
 html {
     font-family: Helvetica, Arial, sans-serif;
-    color: #5b4636;
-    background-color: #f4ecd8;
+    color: var(--theme-text);
+    background-color: var(--theme-default);
 }
 
 body {
