@@ -220,6 +220,14 @@ article > section > section > section > header {
     padding: 0;
 }
 
+code:before {
+    counter-increment: line;
+    content: counter(line);
+    display: inline-block;
+    padding-right: 0.3em;
+    min-width: 3ch;
+}
+
 .code-sample > pre:before {
     counter-increment: line;
     content: counter(line);

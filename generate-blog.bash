@@ -298,6 +298,12 @@ for project_dir in "$here/projects"/*; do
                  "$title"
 done
 
+publish-html "$publish_dir" \
+             "$here/curriculum-vitae" \
+             "$publish_dir/curriculum-vitae" \
+             "$(cat "$here/curriculum-vitae/index.html")" \
+             'Curriculum Vitae'
+
 cp -rv "$here/assets" "$publish_dir/assets" || exit $?
 
 echo 'SUCCESS!'
