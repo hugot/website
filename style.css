@@ -46,7 +46,18 @@ p + p, section + section, table + table, table + p, p + table {
 
 
 aside {
+    background-color: rgba(0,0,0, 0.1);
     width: inherit;
+    max-height: 20rem;
+    overflow-y: scroll;
+    word-break: break-word;
+    padding: 1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+aside::before {
+    content: 'Aside: ';
 }
 
 .publish-date {
@@ -55,8 +66,9 @@ aside {
 }
 
 code {
+    word-break: break-word;
     font-family: Hack, monospace;
-    background-color: rgba(0,0,0, 0.05);
+    background-color: rgba(0,0,0, 0.2);
 }
 
 .nowrap {
@@ -94,7 +106,6 @@ code {
     margin: 0;
 }
 
-
 @media only all and (min-width: 82ch) {
     body {
         line-height: 1.4;
@@ -109,7 +120,6 @@ code {
     aside {
         width: 30%;
         min-width: 10em;
-        background-color: rgba(0,0,0, 0.1);
         float: right;
         padding: 1em;
         margin: 1em;
@@ -206,6 +216,9 @@ article > section > section > section > header {
 }
 
 .code-sample {
+    overflow-x: scroll;
+    word-break: keep-all;
+    clear: right;
     font-family: Hack, monospace;
     background-color: var(--theme-bright);
     border-radius: 0.2em;
@@ -218,6 +231,8 @@ article > section > section > section > header {
 .code-sample pre {
     margin: 0;
     padding: 0;
+    word-break: keep-all;
+    white-space: pre;
 }
 
 .code-sample > pre:before {

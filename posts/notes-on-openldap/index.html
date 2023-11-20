@@ -1,0 +1,134 @@
+<h1>[docs] Notities Over OpenLDAP</h1>
+
+<p><em>Dit zijn mijn notities over OpenLDAP. Deze notities dienen een dubbele functie: ze zijn een referentie voor mezelf bij het leren over OpenLDAP, EN ik hoop anderen er ook wat aan hebben in hun eigen leerproces. Houd er rekening mee dat ik werk vanuit het perspectief van een Software Engineer, niet een certified LDAPer, of hoe zoiets ook mag heten in het vakgebied ;).</em></p>
+
+<p>Ondanks het feit dat LDAP vaak gebruikt wordt voor authenticatie doeleinden, is het eigenijk gewoon een database die geoptimaliseerd is voor lezen. Bij het lezen van artikelen over LDAP voelt het vaak alsof je in een ongeloofelijk complexe wereld terecht bent gekomen waarin je met domeinspecifieke termen voor enterprise sysadmins om de oren wordt geslagen. Als je geen interesse hebt in active directory functionaliteiten binnen een traditioneel netwerk van linux systemen, dan hoef je je over een heleboel van deze termen niet zoveel zorgen te maken.</p>
+
+<h2>LDAP als database voor gebruikersaccounts</h2>
+
+<p>De rest van deze notities gaan over het gebruiken van LDAP als een database voor gebruikersaccounts, waar applicaties net als met een RDBMS verbinding mee kunnen maken voor de opslag en het ophalen van data. We behandelen onder andere het opzetten van OpenLDAP, het opzetten van replicatie tussen OpenLDAP instanties en het instellen van een applicatie, authelia, om van het cluster gebruik te maken.</p>
+
+<h2>LDAP Termen</h2>
+
+<p>Hieronder volgen een paar LDAP-specifieke termen.</p>
+
+<ul>
+<li><strong>DN</strong>: Distinguished Name</li>
+<li><strong>CN</strong>: Common Name</li>
+<li><strong>DC</strong>: Domain Component</li>
+<li><strong>DIT</strong>: Directory Information Tree</li>
+</ul>
+
+<p>Een <strong>Domain Component</strong> is een component van een domein, meestal is dit een DNS domein van een organisatie of applicatie. De componenten van een DNS domein worden begrensd door een punt (.). Dus het domein example.com heeft de componenten &ldquo;example&rdquo; en &ldquo;com&rdquo;. Een <strong>Common Name</strong> verschilt van een <strong>Domain Component</strong> in de zin dat het een generale naam is die niet met domeinen te maken heeft. Een <strong>Distinguished Name</strong> is de unieke naam van een ldap record, bestaande uit de opstapeling van Common Names, Domain Components en andere attributen waarop een record geselecteerd kunnen worden. Stel we willen de gebruiker met de uid &ldquo;jan&rdquo; opzoeken in een LDAP database van de organisatie example.com, dan is de <strong>Distinguished Name</strong> dus <code>uid=jan,dc=example,dc=com</code>.</p>
+
+<h2>Opzetten OpenLDAP</h2>
+
+<p>Installeer openldap met het commando <code>apt install slapd ldap-utils</code>. Configureer vervolgens de basis met het commando <code>dpkg-reconfigure slapd</code>.</p>
+
+<p>Configuratie basis tonen: <code>ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// -b cn=config dn</code> (alleen vanaf root gebruiker). Dit is een speciale ldap directory waarin de configuratie van de server zelf is vastgelegd en gewijzigd kan worden.</p>
+
+<p>Directory Information Tree (DIT) tonen: <code>ldapsearch -x -LLL -H ldapi:/// -b dc=example,dc=com dn</code> (verander domein waar nodig). Dit is de hoofd directory van de ldap server.</p>
+
+<h2>Schema&rsquo;s</h2>
+
+<p>Schema&rsquo;s bepalen, net als mysql table definities, de types van de objecten die in een directory kunnen worden opgeslagen. Bij OpenLDAP worden standaard een aantal schema&rsquo;s geleverd, maar deze zijn erg uitgebreid en complex, zeker voor gebruikersaccounts van een doorsnee website. Daarom gaan we ons eigen schema maken voor een gebruikerstype met alleen de attributen die we nodig hebben.</p>
+<div class="code-sample"><pre>objectclass ( 1.3.6.1.4.1.54392.5.1632.1</pre><pre>    NAME &#39;com-example-Person&#39;</pre><pre>    DESC &#39;A person affiliated with example.com.&#39;</pre><pre>    STRUCTURAL</pre><pre>    MUST ( uid $ userPassword $ displayName $ mail )</pre><pre>    )</pre><pre></pre></div>
+<aside>
+**Private Enterprise Number / OID**
+Het lange nummer aan het begin van de definitie van de objectclass is een OID. Hiervoor heb je een OID namespace nodig, die een "Private Enterprise Number" wordt genoemd en welke je aan kunt vragen via de IANA. PEN aanvragen worden door mensen beoordeeld en toegekend, dus het kan even duren voordat je aan de beurt bent. Het is een beetje een overgecompliceerd en bureaucratisch systeem waarvan de voordelen mij niet helemaal duidelijk zijn, maar het is nou eenmaal onderdeel van de RFC.
+
+Als je geen zin hebt om te wachten op een toekenning van de IANA, dan is er deze website voor verkrijgen van OID zonder menselijke handeling: https://freeoid.pythonanywhere.com/ . Hier krijg je een sub-OID van een PEN die de IANA aan de maker van de website heeft toegekend.
+</aside>
+
+<h2>Schema toevoegen</h2>
+
+<p>Om het nieuwe schema te gebruiken moeten we de configuratie van de LDAP server aanpassen. Bij oudere versies van OpenLDAP deed je dit door /etc/slapd.conf aan te passen, maar bij meer eigentijdse versies maak je hiervoor gebruik van de speciale configuratie directory binnen de LDAP server, cn=config genoemd.</p>
+
+<p>Deze directory wijzig je net zoals je andere LDAP directories zou wijzigen, namelijk door middel van een ldif (LDAP Data Interchange Format) bestand. Dit is een bestand met omschrijvingen van records die aan een LDAP directory moeten worden toegevoegd. Een beetje zoals een .sql bestand met INSERT queries. Om een ldif bestand te maken van ons schema kunnen we de volgende commando&rsquo;s uitvoeren:</p>
+<div class="code-sample"><pre>tmpdir=&#34;$(mktemp -d)&#34;</pre><pre></pre><pre>tee &gt; schemas.conf &lt;&lt;EOF</pre><pre>include /etc/ldap/schema/core.schema</pre><pre>include /etc/ldap/schema/cosine.schema</pre><pre>include /etc/ldap/schema/inetorgperson.schema</pre><pre>include /etc/ldap/schema/openldap.schema</pre><pre></pre><pre>include /pad/naar/ons/schema.schema (WIJZIGEN)</pre><pre>EOF</pre><pre></pre><pre>slaptest -f ./schemas.conf -F &#34;$tmpdir&#34;</pre><pre></pre></div>
+<aside>
+De include regels in het "schemas.conf" bestand dat hier gemaakt wordt laden datatypes in die met openldap meegeleverd worden. Als je andere/meer datatypes gebruikt dan in het voorbeeld, dan kan het zijn dat je andere bestanden moet includeren waar die types in gedefinieerd zijn.
+</aside>
+
+<p>Dit commando maakt een representatie van een nieuwe cn=config directory in een mappenstructuur met ldif bestanden in een tijdelijke map. Bekijk de ldif bestanden van de geincludeerde schema&rsquo;s zo:</p>
+<div class="code-sample"><pre>cd &#34;$tmpdir/cn=config/cn=schema&#34;</pre><pre>ls</pre><pre></pre></div>
+<p>Open het ldif bestand dat bij jouw schema hoort. Het heeft dezelfde naam als je aan het schema hebt gegeven, met een cn={x} prefix. Het zou ongeveer de volgende inhoud moeten hebben:</p>
+<div class="code-sample"><pre># AUTO-GENERATED FILE - DO NOT EDIT!! Use ldapmodify.</pre><pre># CRC32 eceebaf6</pre><pre>dn: cn={1}example-com</pre><pre>objectClass: olcSchemaConfig</pre><pre>cn: {1}example-com</pre><pre>olcObjectClasses: {0}( 1.3.6.1.4.1.54392.5.1632.1 NAME com-example-Person&#39; DESC </pre><pre> &#39;A person affiliated with example.com.&#39; STRUCTURAL MUST ( uid $ userPassword $ displayName $ mail ) )</pre><pre>structuralObjectClass: olcSchemaConfig</pre><pre>entryUUID: 112d022e-5cd9-103d-8da4-6b43adf243c1</pre><pre>creatorsName: cn=config</pre><pre>createTimestamp: 20230322084122Z</pre><pre>entryCSN: 20230322084122.015156Z#000000#000#000000</pre><pre>modifiersName: cn=config</pre><pre>modifyTimestamp: 20230322084122Z</pre><pre></pre></div>
+<p>Wijzig dit zodat het er als volgt uitziet:</p>
+<div class="code-sample"><pre>dn: cn=example-com,cn=schema,cn=config</pre><pre>objectClass: olcSchemaConfig</pre><pre>cn: example-com</pre><pre>olcObjectClasses: {0}( 1.3.6.1.4.1.54392.5.1632.1 NAME com-example-Person&#39; DESC </pre><pre> &#39;A person affiliated with example.com.&#39; STRUCTURAL MUST ( uid $ userPassword $ displayName $ mail ) )</pre><pre></pre></div>
+<p>Dit schema kun je nu aan je configuratie toevoegen door middal van het <code>ldapadd</code> commando: <code>ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /pad/naar/schema.ldif</code>.</p>
+
+<h2>Records (Gebruikers) Toevoegen</h2>
+
+<p>Voor het toevoegen van een gebruiker hebben we ook weer een ldif bestand nodig, dit keer voor het aanpassen van de feitelijke DIT van het root domein dat we hebben ingesteld bij de installatie van openldap.</p>
+<div class="code-sample"><pre>dn: uid=hugo,dc=example,dc=com</pre><pre>objectClass: com-example-Person</pre><pre>displayName: Hugo</pre><pre>userPassword: {SSHA}REDACTED</pre><pre>mail: hugo@example.com</pre><pre></pre></div>
+<p>Het <code>userPassword</code> veld kun je genereren met het <code>slappasswd</code> commando:</p>
+<div class="code-sample"><pre>slappasswd -h {SSHA} -s &#34;$(read -rsp &#39;Password: &#39; password; echo &#34;$password&#34;)&#34;</pre><pre></pre></div>
+<p>ldif toepassen op database: <code>ldapadd -D cn=admin,dc=example,dc=com -W -x -H ldapi:/// -f ./adduser.ldif</code></p>
+
+<aside>ldapadd is een alias voor `ldapmodify -a`</aside>
+
+<h2>Records Wijzigen</h2>
+<div class="code-sample"><pre>dn: uid=hugo,dc=example,dc=com</pre><pre>replace: mail</pre><pre>mail: hugo-newmail@maildomain.example.com</pre><pre></pre></div>
+<p>ldif met wijziging toepassen: <code>ldapmodify -D cn=admin,dc=example,dc=com -W -x -H ldapi:/// -f ./modifymail.ldif</code></p>
+
+<h2>Records Verwijderen</h2>
+<div class="code-sample"><pre>dn: uid=hugo,dc=example,dc=com</pre><pre>changetype: delete</pre><pre></pre></div>
+<h2>Records (Gebruikers) Groeperen</h2>
+
+<p>Het groeperen van gebruikers kan met het groupOfNames datatype.</p>
+<div class="code-sample"><pre>dn: cn=superusers,dc=example,dc=com</pre><pre>objectClass: groupOfNames</pre><pre>cn: superusers</pre><pre>description: Administrators and people who found an exploit in our code.</pre><pre>member: uid=hugo,dc=example,dc=com</pre><pre></pre></div>
+<h3>Gebruiker Toevoegen</h3>
+<div class="code-sample"><pre>dn: cn=superusers,dc=example,dc=com</pre><pre>changetype: modify</pre><pre>add: member</pre><pre>member: uid=hugo,dc=example,dc=com</pre><pre></pre></div>
+<h3>Gebruiker Verwijderen</h3>
+<div class="code-sample"><pre>dn: cn=superusers,dc=example,dc=com</pre><pre>changetype: modify</pre><pre>delete: member</pre><pre>member: uid=hugo,dc=example,dc=com</pre><pre></pre></div>
+<h2>Replicatie</h2>
+
+<p>Voor replicatie zie
+<a href="https://ubuntu.com/server/docs/service-ldap-replication">deze</a> pagina van de ubuntu documentatie. Er is verder ook documentatie op de openldap website.</p>
+
+<h2>SSL/TLS</h2>
+
+<p>Het instellen en gebruiken van TLS met openldap is dan misschien onnodig ingewikkeld, maar het is wel nodig voor de beveiligde verbinding van applicaties met de LDAP server.</p>
+
+<p>In het kort: je hebt een root CA nodig, er is genoeg documentatie over hoe deze te produceren met openssl. Verder heb je een cert en een private key nodig. Om hier vervolgens gebruik van te maken moeten we een aantal waardes in onze <code>cn=config</code> directory aanpassen en een waarde aanpassen in het /etc/default/slapd configuratiebestand. Daarna <strong>is het nodig om slapd opnieuw op te starten</strong>.</p>
+
+<h3>Aanpassingen cn=config</h3>
+<div class="code-sample"><pre>dn: cn=config</pre><pre>changetype: modify</pre><pre>add: olcTLSCertificateKeyFile</pre><pre>olcTLSCertificateKeyFile: /etc/ldap/ssl/privkey.pem</pre><pre>-</pre><pre>add: olcTLSCACertificateFile</pre><pre>olcTLSCACertificateFile: /etc/ldap/ssl/my-root.ca</pre><pre>-</pre><pre>add: olcTLSCertificateFile</pre><pre>olcTLSCertificateFile: /etc/ldap/ssl/pubkey.crt</pre><pre></pre></div>
+<h3>Aanpassing /etc/default/slapd</h3>
+
+<p>Pas het bestand /etc/default/slapd de waarde van SLAPD_SERVICES aan zodat deze ldaps:/// includeert:</p>
+<div class="code-sample"><pre>SLAPD_SERVICES=&#34;ldap:/// ldapi:/// ldaps:///&#34;</pre><pre></pre></div>
+<h3>Clients Gebruiken met TLS</h3>
+
+<p>Met StartTLS:</p>
+<div class="code-sample"><pre>LDAPTLS_REQCERT=allow ldapsearch -ZZ -x -LLL -H ldap://ldap.example.com -D cn=admin,dc=example,dc=com -W -b dc=example,dc=com</pre><pre></pre></div>
+<p>Of direct met TLS (via ldaps://):</p>
+<div class="code-sample"><pre>LDAPTLS_REQCERT=allow ldapsearch -x -LLL -H ldaps://ldap.example.com -D cn=admin,dc=example,dc=com -W -b dc=example,dc=com</pre><pre></pre></div>
+<h2>Authenticatie</h2>
+
+<p>De bind-DN <code>cn=admin,dc=example,dc=com</code> kan gebruikt worden voor alle mogelijke wijzigingen. Maar voor het gebruik van de ldap server met andere applicaties zoals authelia, is het toch wel fijn om apparte inlog gegevens aan te maken.</p>
+
+<p>Een bind-DN is eigenlijk niets anders dan een object in de directory tree. Alles dat het attribuut <code>userPassword</code> heeft kan gebruikt worden als bind-DN. Je directory structuur kun je zo gek maken als je zelf wil.</p>
+
+<p>Welke rechten een willekeurige bind-DN over de directory tree krijgt, kan ingesteld worden via access regels in de cn=config database. In de <a href="">openldap documentatie</a> en in <code>man slapd.access</code> wordt het opstellen van deze regels uitgelegd. Het is sowieso wel aan te raden om andere access regels in te stellen dan de standaard, want zonder aanpassingen geeft openldap alles en iedereen zonder authenticatie lees-rechten.</p>
+
+<h3>Voorbeeld: &ldquo;o=access&rdquo;</h3>
+
+<p>Omdat OpenLDAP veel vrijheid biedt in de structuur van onze directory, en in manieren om rechten van bind-DNs vast te leggen, is het makkelijk om dingen ingewikkelder te maken dan nodig. Een strategie die ik in zulke situaties graag hanteer is kijken hoe andere software projecten het probleem oplossen. Een stuk software waar ik relatief veel ervaring mee heb is MYSQL of, preciezer, mariaDB. MariaDB slaat database gebruikers en hun rechten op in een tabel van de speciale &ldquo;mysql&rdquo; database. Dit voorbeeld is daardoor geinspireerd: we gaan een speciale &ldquo;o=access&rdquo; directory maken waarin bind-DNs en hun rechten worden vastgelegd. De structuur van onze volledige DIT gaat er als volgt uitzien:</p>
+<div class="code-sample"><pre>[ (root) dc=example,dc=com ]</pre><pre>  |</pre><pre>  |_ [ (organization) o=access,dc=example,dc=com ]</pre><pre>  |     |</pre><pre>  |     |_ [ (groupOfNames) cn=authentication,o=access,dc=example,dc=com ]</pre><pre>  |     |     |</pre><pre>  |     |     |_ +member: uid=authlia,o=access,dc=example,dc=com</pre><pre>  |     |     |_ +member: uid=registration,o=access,dc=example,dc=com</pre><pre>  |     |</pre><pre>  |     |_ [ (groupOfNames) cn=something-else,o=access,dc=example,dc=com ]</pre><pre>  |     |     |</pre><pre>  |     |     |_ +member: uid=registration,o=access,dc=example,dc=com</pre><pre>  |     |</pre><pre>  |     |_ [ (com-example-Person) uid=authelia,o=access,dc=example,dc=com ]</pre><pre>  |     |_ [ (com-example-Person) uid=registration,o=access,dc=example,dc=com ]</pre><pre>  |</pre><pre>  |</pre><pre>  |_ [ (organization) o=authentication,dc=example,dc=com ]</pre><pre>  |_ [ (organization) o=something-else,dc=example,dc=com ]</pre><pre></pre></div>
+<p>Zoals te zien, zal de o=access directory twee soorten objecten bevatten: <code>groupOfNames</code> en <code>com-example-Person</code>. Het <code>cn</code> component van iedere groupOfNames heeft de naam van een andere <code>organization</code> die naast <code>o=access</code> in de DIT bestaat. Door gebruikers van het type <code>com-example-Person</code> als lid van een dergelijke groep toe te voegen, zullen deze gebruikers gebruikt kunnen worden als bind-DNs voor de congruerende organizations. Kort gezegd: als de gebruiker <code>uid=authlia,o=access,dc=example,dc=com</code> aan de groep <code>cn=authentication,o=access,dc=example,dc=com</code> wordt toegevoegd, dan kan de DN van deze gebruiker vanaf dat moment gebruikt worden om toegang te krijgen tot <code>o=authentication,dc=example,dc=com</code>.</p>
+
+<p>Hiermee wordt het volgende bereikt:</p>
+
+<ul>
+<li>Het is makkelijk om een bind-DN toegang te geven tot 1 of meerdere sub-organisaties in de DIT.</li>
+<li>Omdat alleen op het root-niveau van de DIT rechten worden beheerd, wordt onnodige complexiteit met rechten in meerdere lagen van sub-directories voorkomen.</li>
+<li>Net als een mariaDB database, is de ldap server met het gebruik van <code>organization</code> directories in de root van onze DIT in feite een multi-tennant database geworden. Een <code>organization</code> is in deze context als een <code>schema</code> in een mariaDB/MySQL database. En database gebruikers en hun rechten kunnen per <code>organization</code> worden bijgehouden.</li>
+</ul>
+
+<h4>olcAccess in cn=config</h4>
+
+<p>Om het bovenstaande mogelijk te maken is wel wat configuratie magie nodig. De regels die gevolgd moeten worden voor het toewijzen van rechten aan een bind-DN bij connectie staan vastgelegd in <code>olcDatabase{1}mdb,cn=config</code>.</p>
+<div class="code-sample"><pre>dn: olcDatabase={1}mdb,cn=config</pre><pre>changetype: modify</pre><pre>replace: olcAccess</pre><pre>olcAccess: to attrs=userPassword by anonymous auth</pre><pre>olcAccess: to dn.regex=&#34;o=([^,]+),dc=example,dc=com$&#34; by group/groupOfNames/member.expand=&#34;cn=$1,o=access,dc=example,dc=com&#34; manage</pre><pre></pre></div>
+<h2>Authelia Configuratie</h2>

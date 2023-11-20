@@ -1,3 +1,4 @@
+posts/notes-on-openldap/index.html
 posts/use-your-mail-client-for-physical-mail/index.html
 posts/simple-static-blog/index.html
 posts/introduction/index.html
