@@ -72,7 +72,7 @@ print-html-top() {
   <meta name="viewport" content="width=device-width, initial-scale=1">
  </head>
  <body>
-  <nav style="display: flex; flex-direction: horizontal;">
+  <nav>
    <div class="navitem"><a href="${backlink}index.html">Home</a></div>
    <div class="navitem"><a href="${backlink}blog.html">Blog</a></div>
    <div class="navitem"><a href="${backlink}feed.xml">RSS Feed</a></div>

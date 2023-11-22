@@ -179,6 +179,17 @@ nav .navitem + .navitem::before {
     content: "|";
 }
 
+body > nav {
+    display: flex;
+    flex-direction: horizontal;
+}
+
+@media print {
+    body > nav {
+        display: none;
+    }
+}
+
 /* h1 */
 article > header {
     display: block;
